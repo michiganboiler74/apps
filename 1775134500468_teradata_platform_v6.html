@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teradata Agentic CX Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  /* Teradata brand palette */
+  --td-orange:#F37021;--td-teal:#028090;--td-dark:#0D1B2A;
+  --td-orange-lt:rgba(243,112,33,.1);--td-orange-md:rgba(243,112,33,.2);
+  --td-teal-lt:rgba(2,128,144,.1);--td-teal-md:rgba(2,128,144,.2);
+  --td-dark-lt:rgba(13,27,42,.06);--td-dark-md:rgba(13,27,42,.12);
+
+  /* UI surface */
+  --bg:#F4F6F9;--s1:#FFFFFF;--s2:#F0F2F6;--s3:#E4E8EF;
+  --bdr:rgba(13,27,42,.09);--bdr2:rgba(13,27,42,.14);
+
+  /* Text */
+  --tx:#0D1B2A;--tm:#6B7A8D;--td2:#3D4F62;
+
+  /* Semantic */
+  --gn:#0A8A5A;--gd:rgba(10,138,90,.1);
+  --rd:#C0392B;--rdd:rgba(192,57,43,.1);
+  --yw:#D4860A;--yd:rgba(212,134,10,.1);
+  --bl:#1A5FAB;--bld:rgba(26,95,171,.1);
+
+  /* App accents — using TD teal for CIM, orange for VCX/primary, blue for MDM */
+  --cim:#028090;--cim-lt:rgba(2,128,144,.1);--cim-md:rgba(2,128,144,.18);
+  --vcx:#F37021;--vcx-lt:rgba(243,112,33,.1);--vcx-md:rgba(243,112,33,.18);
+  --mdm:#1A5FAB;--mdm-lt:rgba(26,95,171,.1);--mdm-md:rgba(26,95,171,.18);
+
+  /* Terry uses TD dark/teal */
+  --ty:#028090;--tyd:rgba(2,128,144,.1);--tyg:rgba(2,128,144,.22);
+}
+body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--tx);height:100vh;display:flex;flex-direction:column;overflow:hidden;font-size:13px}
+
+/* NAV */
+.nav{height:52px;background:var(--td-dark);border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;padding:0 16px;gap:12px;flex-shrink:0;z-index:300}
+.brand{display:flex;align-items:center;gap:9px;cursor:pointer;user-select:none}
+.bmark{width:28px;height:28px;background:var(--td-orange);border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#fff}
+.bname{font-size:12.5px;font-weight:600;color:#fff}.bsub{font-size:9.5px;color:rgba(255,255,255,.45)}
+.nsep{width:1px;height:20px;background:rgba(255,255,255,.15)}
+.bc{display:flex;align-items:center;gap:5px;font-size:11px;color:rgba(255,255,255,.5);flex:1;min-width:0}
+.bcl{color:rgba(255,255,255,.6);cursor:pointer;transition:color .15s}.bcl:hover{color:#fff}
+.bcc{color:rgba(255,255,255,.9);font-weight:500}
+.bcs{color:rgba(255,255,255,.3);font-size:9px}
+.nright{display:flex;align-items:center;gap:9px;flex-shrink:0}
+.mtog{display:flex;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:7px;padding:3px;gap:2px}
+.mbtn{padding:4px 12px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;border:none;transition:all .2s;font-family:'Sora',sans-serif;letter-spacing:.02em;color:rgba(255,255,255,.5);background:transparent}
+.mbtn.easy.on{color:var(--td-dark);background:#fff}
+.mbtn.exp.on{color:#fff;background:var(--td-orange)}
+.uchip{display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;border:1px solid rgba(255,255,255,.2);font-size:11px;color:rgba(255,255,255,.7)}
+.uav{width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,var(--td-teal),var(--td-orange));font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;color:#fff}
+
+/* LAYOUT */
+.body{display:flex;flex:1;overflow:hidden;position:relative}
+.sbar{width:46px;background:var(--td-dark);border-right:none;display:flex;flex-direction:column;align-items:center;padding:10px 0;gap:4px;flex-shrink:0}
+.si{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;color:rgba(255,255,255,.4);transition:all .15s;border:1px solid transparent;position:relative}
+.si:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,.85)}
+.si.on{background:var(--td-orange);color:#fff;border-color:transparent}
+.si-tip{position:absolute;left:44px;background:var(--td-dark);border:1px solid rgba(255,255,255,.12);padding:4px 9px;border-radius:5px;font-size:10px;white-space:nowrap;color:#fff;pointer-events:none;opacity:0;transition:opacity .15s;z-index:999}
+.si:hover .si-tip{opacity:1}
+.main{flex:1;overflow-y:auto;padding:20px 22px;display:flex;flex-direction:column;gap:14px}
+
+/* CARDS */
+.card{background:var(--s1);border:1px solid var(--bdr);border-radius:10px;overflow:hidden;box-shadow:0 1px 3px rgba(13,27,42,.06)}
+.chd{padding:12px 15px 10px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between}
+.ctit{font-size:12px;font-weight:600;color:var(--tx);display:flex;align-items:center;gap:6px}
+.cmeta{font-size:10px;color:var(--tm)}
+.cbd{padding:13px 15px}
+
+/* PILLS */
+.pill{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.07em;text-transform:uppercase;padding:2px 7px;border-radius:3px;font-weight:600}
+.pcim{background:var(--cim-lt);color:var(--cim)}.pvcx{background:var(--vcx-lt);color:var(--vcx)}.pmdm{background:var(--mdm-lt);color:var(--mdm)}
+.pred{background:var(--rdd);color:var(--rd)}.pgrn{background:var(--gd);color:var(--gn)}.pylw{background:var(--yd);color:var(--yw)}
+
+/* BUTTONS */
+.btn{font-size:11px;font-weight:600;padding:6px 13px;border-radius:6px;border:1px solid;cursor:pointer;font-family:'Sora',sans-serif;transition:all .15s;display:inline-flex;align-items:center;gap:5px}
+.btnp{background:var(--td-orange);border-color:var(--td-orange);color:#fff}.btnp:hover{opacity:.88}
+.btnp2{background:var(--td-teal);border-color:var(--td-teal);color:#fff}.btnp2:hover{opacity:.88}
+.btng{background:transparent;border-color:var(--bdr2);color:var(--td2)}.btng:hover{background:var(--s2);color:var(--tx)}
+.btngn{background:var(--gn);border-color:var(--gn);color:#fff}.btngn:hover{opacity:.88}
+.btnrd{background:var(--rd);border-color:var(--rd);color:#fff}
+
+/* BADGES */
+.bdg{font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px}
+.bgn{background:var(--gd);color:var(--gn)}.brd{background:var(--rdd);color:var(--rd)}.byw{background:var(--yd);color:var(--yw)}.bbl{background:var(--bld);color:var(--bl)}
+
+/* GRIDS */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:13px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+
+/* METRIC CARDS */
+.mc{background:var(--s1);border:1px solid var(--bdr);border-radius:10px;padding:15px;position:relative;overflow:hidden;box-shadow:0 1px 3px rgba(13,27,42,.06)}
+.macc{position:absolute;bottom:0;left:0;right:0;height:3px}
+.mval{font-size:26px;font-weight:700;line-height:1;margin-bottom:3px;color:var(--tx)}
+.mlbl{font-size:10.5px;color:var(--tm);margin-bottom:7px}
+.mdlt{font-size:10.5px;font-weight:600}
+.dup{color:var(--gn)}.ddn{color:var(--rd)}.dwrn{color:var(--yw)}
+
+/* TABLE */
+.dtbl{width:100%;border-collapse:collapse}
+.dtbl th{padding:8px 12px;text-align:left;font-size:9.5px;font-family:'JetBrains Mono',monospace;color:var(--tm);letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--bdr);font-weight:500;background:var(--s2)}
+.dtbl td{padding:10px 12px;font-size:11.5px;color:var(--td2);border-bottom:1px solid var(--bdr)}
+.dtbl tr:last-child td{border-bottom:none}.dtbl tr:hover td{background:rgba(2,128,144,.04)}
+.dtbl td strong{color:var(--tx);font-weight:500}
+.rl{color:var(--td-teal);cursor:pointer}.rl:hover{text-decoration:underline}
+
+/* PROGRESS / SPARK */
+.pb{height:5px;background:var(--s3);border-radius:3px;overflow:hidden}
+.pf{height:100%;border-radius:3px}
+.spark{display:flex;align-items:flex-end;gap:2px;height:32px}
+.sb{flex:1;border-radius:2px 2px 0 0;min-height:3px}
+
+/* ROW */
+.drw{display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--bdr);gap:10px}
+.drw:last-child{border-bottom:none}
+.dlbl{font-size:11px;color:var(--tm);flex:1}.dval{font-size:11.5px;color:var(--tx);font-weight:500;text-align:right}
+
+/* ALERT STRIP */
+.ial{display:flex;gap:11px;align-items:flex-start;padding:12px 15px;border-radius:9px}
+.ial.red{background:var(--rdd);border:1px solid rgba(192,57,43,.2)}
+.ial.ylw{background:var(--yd);border:1px solid rgba(212,134,10,.2)}
+.iaic{font-size:16px;flex-shrink:0;margin-top:1px}.iatit{font-size:12px;font-weight:600;margin-bottom:2px}
+.iabd{font-size:11px;color:var(--td2);line-height:1.5}.iaax{display:flex;gap:7px;margin-top:7px}
+
+/* TERRY TIP */
+.ttip{display:flex;gap:9px;padding:10px 12px;background:rgba(2,128,144,.07);border:1px solid rgba(2,128,144,.18);border-radius:9px;align-items:flex-start}
+.ttic{font-size:15px;flex-shrink:0}.ttxt{font-size:11.5px;color:var(--td2);line-height:1.5}
+.ttxt strong{color:var(--ty)}.ttxt a{color:var(--ty);cursor:pointer;text-decoration:underline}
+
+/* MISC */
+.slbl{font-family:'JetBrains Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--tm);margin-bottom:9px}
+.prow{display:flex;flex-wrap:wrap;gap:5px}
+.pchip{background:var(--s1);border:1px solid var(--bdr2);border-radius:16px;padding:5px 12px;font-size:11px;color:var(--td2);cursor:pointer;transition:all .15s;box-shadow:0 1px 2px rgba(13,27,42,.05)}
+.pchip:hover{border-color:var(--td-teal);color:var(--td-teal);background:var(--teal-lt,rgba(2,128,144,.06))}
+.ecard{background:var(--s1);border:1px solid var(--bdr);border-radius:10px;padding:15px;cursor:pointer;transition:all .15s;box-shadow:0 1px 3px rgba(13,27,42,.06)}
+.ecard:hover{border-color:var(--td-teal);box-shadow:0 2px 8px rgba(2,128,144,.12)}
+.eico{font-size:20px;margin-bottom:8px}.etit{font-size:12.5px;font-weight:600;margin-bottom:4px}
+.ebody{font-size:11px;color:var(--tm);line-height:1.55}.ecta{font-size:10.5px;color:var(--td-teal);font-weight:600;margin-top:8px}
+.screen{display:none;flex-direction:column;gap:14px}.screen.on{display:flex}
+@keyframes fu{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.fin{animation:fu .28s ease both}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:5px}
+.pgtit h2{font-size:17px;font-weight:700;margin-bottom:2px;color:var(--td-dark)}
+.pgtit p{font-size:11px;color:var(--tm)}
+.code{font-family:'JetBrains Mono',monospace;font-size:10px;background:var(--s2);padding:1px 5px;border-radius:3px;color:var(--td2)}
+.live{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--gn)}
+.livdot{width:6px;height:6px;border-radius:50%;background:var(--gn);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.xo{}.eo{display:none}
+body.easy .xo{display:none!important}
+body.easy .eo{display:block}
+.dsrow{display:flex;align-items:center;gap:9px;padding:5px 9px;border-radius:5px;background:var(--s2);font-size:10.5px;font-family:'JetBrains Mono',monospace;animation:fu .3s ease both;margin-bottom:3px}
+.strow{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--bdr)}
+.strow:last-child{border-bottom:none}
+.stind{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(13,27,42,.55);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
+.modal-bg.open{display:flex}
+.modal{background:var(--s1);border:1px solid var(--bdr);border-radius:14px;width:760px;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;animation:fu .2s ease both;box-shadow:0 20px 60px rgba(13,27,42,.2)}
+.mhd{padding:16px 20px;border-bottom:1px solid var(--bdr);display:flex;align-items:flex-start;justify-content:space-between;flex-shrink:0;background:var(--s2)}
+.mhtit{font-size:15px;font-weight:700;color:var(--tx)}.mhsub{font-size:11px;color:var(--tm);margin-top:2px}
+.mclose{width:28px;height:28px;border-radius:6px;background:var(--s1);border:1px solid var(--bdr);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--tm)}
+.mclose:hover{background:var(--rdd);color:var(--rd);border-color:rgba(192,57,43,.3)}
+.mbody{flex:1;overflow-y:auto;padding:20px}
+.mft{padding:13px 20px;border-top:1px solid var(--bdr);display:flex;align-items:center;gap:9px;flex-shrink:0;background:var(--s2)}
+
+/* WIZARD STEPS */
+.wsteps{display:flex;align-items:flex-start;gap:0;margin-bottom:20px}
+.wscol{display:flex;flex-direction:column;align-items:center}
+.wsnum{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace;flex-shrink:0;transition:all .3s}
+.wsnum.dn{background:var(--gn);color:#fff}.wsnum.ac{background:var(--td-orange);color:#fff}.wsnum.pe{background:var(--s2);color:var(--tm);border:1px solid var(--bdr2)}
+.wsline{width:44px;height:2px;background:var(--bdr2);margin-top:13px}.wsline.dn{background:var(--gn)}
+.wsname{font-size:9px;color:var(--tm);margin-top:4px;text-align:center;max-width:58px;line-height:1.3}
+.wp{display:none;flex-direction:column;gap:14px}.wp.on{display:flex}
+.flbl{font-size:11.5px;font-weight:600;color:var(--td2);margin-bottom:5px;display:block}
+.fi{width:100%;background:var(--s1);border:1px solid var(--bdr2);border-radius:7px;padding:8px 12px;font-size:12px;color:var(--tx);font-family:'Sora',sans-serif;outline:none;transition:border-color .15s}
+.fi:focus{border-color:var(--td-teal)}.fi::placeholder{color:var(--tm)}
+.fsel{width:100%;background:var(--s1);border:1px solid var(--bdr2);border-radius:7px;padding:8px 12px;font-size:12px;color:var(--tx);font-family:'Sora',sans-serif;outline:none;cursor:pointer}
+.fta{width:100%;background:var(--s1);border:1px solid var(--bdr2);border-radius:7px;padding:8px 12px;font-size:12px;color:var(--tx);font-family:'Sora',sans-serif;outline:none;resize:none;line-height:1.5}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fg{display:flex;flex-direction:column;gap:5px}
+.optg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.optc{background:var(--s2);border:2px solid var(--bdr2);border-radius:9px;padding:12px;cursor:pointer;transition:all .15s}
+.optc:hover{border-color:var(--td-orange)}.optc.sel{border-color:var(--td-orange);background:var(--vcx-lt)}
+.oco{font-size:18px;margin-bottom:5px}.oct{font-size:11.5px;font-weight:600;margin-bottom:3px}.ocb{font-size:10.5px;color:var(--tm);line-height:1.4}
+.chanrow{display:flex;gap:8px;flex-wrap:wrap}
+.chanc{padding:7px 13px;border:1px solid var(--bdr2);border-radius:7px;font-size:11.5px;cursor:pointer;transition:all .15s;background:var(--s2);display:flex;align-items:center;gap:5px;color:var(--td2)}
+.chanc:hover{border-color:var(--td-orange)}.chanc.sel{border-color:var(--td-orange);background:var(--vcx-lt);color:var(--td-orange)}
+.aisug{background:rgba(2,128,144,.06);border:1px solid rgba(2,128,144,.18);border-radius:8px;padding:10px 13px;display:flex;gap:9px;align-items:flex-start}
+.aico{font-size:14px;flex-shrink:0;margin-top:1px}.aitx{font-size:11.5px;color:var(--td2);line-height:1.5}
+.aitx strong{color:var(--ty)}.aitx a{color:var(--ty);cursor:pointer}
+.rsec{background:var(--s2);border:1px solid var(--bdr);border-radius:9px;padding:14px;margin-bottom:10px}
+.rstit{font-size:10px;font-weight:600;color:var(--ty);margin-bottom:10px;font-family:'JetBrains Mono',monospace;letter-spacing:.05em;text-transform:uppercase}
+.ech{display:flex;flex-direction:column;gap:9px;margin-bottom:12px}
+.ect{display:flex;gap:8px;align-items:flex-start}
+.ecav{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--td-teal),#5ba8b0);font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.ecbb{background:var(--s2);border:1px solid var(--bdr2);border-radius:0 9px 9px 9px;padding:9px 12px;font-size:12px;line-height:1.55;color:var(--td2);flex:1}
+.ecbb strong{color:var(--tx)}
+.ecu{display:flex;justify-content:flex-end}
+.ecub{background:var(--vcx-lt);border:1px solid var(--vcx-md);border-radius:9px 0 9px 9px;padding:8px 12px;font-size:12px;color:var(--tx);max-width:85%}
+.ecopts{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.ecopt{font-size:11px;padding:5px 11px;border-radius:5px;border:1px solid var(--td-teal);color:var(--td-teal);background:var(--teal-lt,rgba(2,128,144,.06));cursor:pointer;transition:all .15s;font-family:'Sora',sans-serif}
+.ecopt:hover{background:rgba(2,128,144,.12)}.ecopt.sel{background:var(--td-teal);color:#fff;pointer-events:none}
+.ecinp{display:flex;gap:8px;align-items:center;border-top:1px solid var(--bdr);padding-top:12px;margin-top:4px}
+.ecif{flex:1;background:var(--s2);border:1px solid var(--bdr2);border-radius:7px;padding:8px 12px;font-size:12px;color:var(--tx);font-family:'Sora',sans-serif;outline:none}
+.ecif:focus{border-color:var(--td-teal)}.ecif::placeholder{color:var(--tm)}
+.ecsnd{padding:8px 15px;background:var(--td-teal);border:none;border-radius:7px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif}
+
+/* ── TERRY floating widget ── */
+.tp{position:fixed;bottom:20px;right:20px;z-index:400;display:flex;flex-direction:column;align-items:flex-end;gap:10px;pointer-events:none}
+.tp *{pointer-events:all}
+.terry-fab{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--td-teal),#03a8be);border:2px solid rgba(2,128,144,.3);box-shadow:0 4px 18px rgba(2,128,144,.35),0 2px 6px rgba(13,27,42,.15);display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;position:relative;transition:transform .18s,box-shadow .18s}
+.terry-fab:hover{transform:scale(1.07);box-shadow:0 6px 24px rgba(2,128,144,.5),0 2px 6px rgba(13,27,42,.15)}
+.terry-fab-dot{position:absolute;top:3px;right:3px;width:11px;height:11px;border-radius:50%;background:var(--gn);border:2px solid #fff;animation:pulse 2s infinite}
+.terry-fab-badge{position:absolute;bottom:-4px;right:-4px;background:var(--td-orange);color:#fff;font-family:'JetBrains Mono',monospace;font-size:7.5px;letter-spacing:.06em;font-weight:600;padding:2px 5px;border-radius:8px;border:1.5px solid #fff;opacity:0;transform:scale(.7);transition:opacity .2s,transform .2s}
+.terry-fab-badge.show{opacity:1;transform:scale(1)}
+.terry-panel{width:290px;background:var(--s1);border:1px solid var(--bdr);border-radius:14px;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(13,27,42,.14),0 1px 3px rgba(13,27,42,.08);max-height:470px;transform-origin:bottom right;transform:scale(.88) translateY(12px);opacity:0;pointer-events:none;transition:transform .22s cubic-bezier(.34,1.28,.64,1),opacity .18s ease}
+.terry-panel.open{transform:scale(1) translateY(0);opacity:1;pointer-events:all}
+.th{padding:10px 12px 9px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:9px;border-radius:14px 14px 0 0;background:var(--td-dark)}
+.tav{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--td-teal),#03a8be);display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 0 12px rgba(2,128,144,.4);position:relative;flex-shrink:0}
+.tdot{position:absolute;bottom:0;right:0;width:8px;height:8px;border-radius:50%;background:var(--gn);border:2px solid var(--td-dark)}
+.ti{flex:1}.tn{font-size:12px;font-weight:600;color:#fff}.tr{font-size:9.5px;color:rgba(255,255,255,.45)}
+.tbadge{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.08em;padding:2px 6px;border-radius:3px;font-weight:600}
+.tbe{background:rgba(243,112,33,.25);color:#ffb380}.tby{background:rgba(2,128,144,.3);color:#7de8f5}
+.terry-hbtns{display:flex;align-items:center;gap:5px;flex-shrink:0}
+.terry-hbtn{width:24px;height:24px;border-radius:5px;background:transparent;border:1px solid rgba(255,255,255,.18);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;color:rgba(255,255,255,.5);transition:all .15s}
+.terry-hbtn:hover{background:rgba(255,255,255,.12);color:#fff}
+.terry-hbtn.close-btn:hover{background:rgba(192,57,43,.35);color:#ffaaaa;border-color:rgba(192,57,43,.4)}
+.tmsgs{flex:1;overflow-y:auto;padding:11px 11px 5px;display:flex;flex-direction:column;gap:9px;min-height:0}
+.tmsg{display:flex;gap:7px;align-items:flex-start;animation:fu .25s ease both}
+.ta2{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--td-teal),#03a8be);font-size:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.tb{background:var(--s2);border:1px solid var(--bdr);border-radius:0 9px 9px 9px;padding:8px 10px;font-size:11.5px;line-height:1.55;color:var(--td2);flex:1}
+.tb strong{color:var(--tx)}.tb .hl{color:var(--ty)}.tb .og{color:var(--td-orange)}.tb .gr{color:var(--gn)}.tb a{color:var(--ty);cursor:pointer;text-decoration:underline}
+.tacts{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.tbt{font-size:10px;padding:3px 8px;border-radius:4px;border:1px solid var(--td-teal);color:var(--td-teal);background:var(--tyd);cursor:pointer;font-family:'Sora',sans-serif;font-weight:500;transition:all .15s}
+.tbt:hover{background:rgba(2,128,144,.15)}.tbt.p{background:var(--td-teal);color:#fff}.tbt.p:hover{opacity:.88}
+.tbt.og{border-color:var(--td-orange);color:var(--td-orange);background:var(--vcx-lt)}
+.umsg{display:flex;justify-content:flex-end;animation:fu .25s ease both}
+.ub{background:var(--vcx-lt);border:1px solid var(--vcx-md);border-radius:9px 0 9px 9px;padding:7px 10px;font-size:11.5px;color:var(--tx);max-width:88%}
+.tinp{padding:8px 10px 10px;border-top:1px solid var(--bdr);display:flex;gap:6px;align-items:flex-end}
+.tinput{flex:1;background:var(--s2);border:1px solid var(--bdr2);border-radius:7px;padding:7px 10px;font-size:11.5px;color:var(--tx);font-family:'Sora',sans-serif;resize:none;line-height:1.4;outline:none}
+.tinput:focus{border-color:var(--td-teal)}.tinput::placeholder{color:var(--tm)}
+.tsend{width:30px;height:30px;background:var(--td-teal);border:none;border-radius:7px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px}
+.clear-confirm{position:absolute;bottom:68px;right:0;background:var(--s1);border:1px solid var(--bdr2);border-radius:9px;padding:10px 12px;font-size:11px;color:var(--td2);white-space:nowrap;box-shadow:0 4px 16px rgba(13,27,42,.12);display:none;animation:fu .18s ease both}
+.clear-confirm.show{display:block}
+.clear-confirm p{margin-bottom:8px;color:var(--tx);font-size:11px}
+.clear-confirm-btns{display:flex;gap:6px}
+.ccbtn{font-size:10.5px;padding:4px 10px;border-radius:5px;border:1px solid;cursor:pointer;font-family:'Sora',sans-serif;font-weight:600;transition:all .15s}
+.ccbtn.yes{background:var(--rdd);border-color:rgba(192,57,43,.3);color:var(--rd)}.ccbtn.yes:hover{background:var(--rd);color:#fff}
+.ccbtn.no{background:var(--s2);border-color:var(--bdr2);color:var(--td2)}.ccbtn.no:hover{background:var(--s3);color:var(--tx)}
+</style>
+</head>
+<body id="APP">
+
+<div class="nav">
+  <div class="brand" onclick="nav('dash')"><div class="bmark">Td</div><div><div class="bname">Teradata</div><div class="bsub">Agentic CX Platform</div></div></div>
+  <div class="nsep"></div>
+  <div class="bc" id="BC"><span class="bcc">Overview</span></div>
+  <div class="nright">
+    <div class="mtog"><button class="mbtn easy" id="BEasy" onclick="setMode('easy')">✦ Easy</button><button class="mbtn exp on" id="BExp" onclick="setMode('expert')">⚙ Expert</button></div>
+    <button onclick="storyOn()" style="padding:4px 12px;border-radius:6px;background:var(--td-orange);border:none;color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;letter-spacing:.02em;display:flex;align-items:center;gap:5px">▶ Demo Mode</button>
+    <div class="uchip"><div class="uav">SL</div>Sarah L.</div>
+  </div>
+</div>
+
+<div class="body">
+<div class="sbar">
+  <div class="si on" id="si0" onclick="nav('dash')"><span>📊</span><span class="si-tip">Overview</span></div>
+  <div class="si" id="si1" onclick="nav('cim')"><span>📣</span><span class="si-tip">CIM · Campaigns</span></div>
+  <div class="si" id="si2" onclick="nav('vcx')"><span>⚡</span><span class="si-tip">VCX · Decisioning</span></div>
+  <div class="si" id="si3" onclick="nav('mdm')"><span>🗄</span><span class="si-tip">MDM · Data Health</span></div>
+  <div class="si" id="si4" onclick="nav('mkt')"><span>🏪</span><span class="si-tip">Marketplace</span></div>
+  <div style="flex:1"></div>
+  <div class="si"><span>⚙️</span><span class="si-tip">Settings</span></div>
+</div>
+
+<div class="main" id="MAIN">
+
+<!-- DASHBOARD -->
+<div class="screen on fin" id="s-dash">
+  <div class="xo">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div class="pgtit"><h2>Customer Experience Overview</h2><p>CIM · VCX · MDM · <span class="live"><span class="livdot"></span>Live</span></p></div>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--tm);background:var(--s1);border:1px solid var(--bdr);padding:4px 9px;border-radius:5px">Mon 09:24 AM</span>
+    </div>
+    <div class="ial red"><div class="iaic">⚠️</div><div style="flex:1"><div class="iatit" style="color:var(--rd)">MDM data issue → VCX mis-scoring → 6 CIM campaigns degraded</div><div class="iabd">3,400 profiles have placeholder phone data. VCX reads MDM for channel routing — sending them to push instead of email. Push CVR fell 35%.</div><div class="iaax"><button class="btn btnrd" onclick="nav('mdm')">Fix in MDM →</button><button class="btn btng">Dismiss</button></div></div></div>
+    <div class="g4">
+      <div class="mc"><div class="macc" style="background:var(--vcx)"></div><div style="margin-bottom:8px"><span class="pill pvcx">VCX</span></div><div class="mval" style="color:var(--vcx)">247K</div><div class="mlbl">Decisions / hour</div><div class="mdlt dup">↑ 3.2% vs last week</div></div>
+      <div class="mc"><div class="macc" style="background:var(--cim)"></div><div style="margin-bottom:8px"><span class="pill pcim">CIM</span></div><div class="mval" style="color:var(--cim)">218</div><div class="mlbl">Active campaigns</div><div class="mdlt dwrn">6 paused · low CVR</div></div>
+      <div class="mc"><div class="macc" style="background:var(--mdm)"></div><div style="margin-bottom:8px"><span class="pill pmdm">MDM</span></div><div class="mval" style="color:var(--mdm)">94.2%</div><div class="mlbl">Entity accuracy</div><div class="mdlt ddn">↓ 1.8% · action needed</div></div>
+      <div class="mc"><div class="macc" style="background:var(--td-orange)"></div><div style="margin-bottom:8px"><span class="pill" style="background:var(--vcx-lt);color:var(--td-orange)">ALL</span></div><div class="mval" style="color:var(--td-orange)">$2.1M</div><div class="mlbl">Revenue protected</div><div class="mdlt dup">↑ 12% vs prior period</div></div>
+    </div>
+    <div class="card">
+      <div class="chd"><div class="ctit">🔗 Cross-App Insights <span style="font-size:10px;color:var(--tm);font-weight:400;margin-left:4px">Terry detected · today</span></div></div>
+      <div style="padding:0 15px">
+        <div style="display:flex;gap:11px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--bdr)">
+          <div style="width:30px;height:30px;border-radius:7px;background:var(--rdd);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px">⚠️</div>
+          <div style="flex:1"><div style="font-size:12px;font-weight:600;margin-bottom:3px">MDM corruption → VCX channel mis-routing → CIM push failures</div>
+          <div style="font-size:11px;color:var(--tm);line-height:1.5">Fix MDM and both VCX and CIM self-correct automatically. Root cause: Wed 2:14am CRM sync.</div>
+          <div style="display:flex;gap:5px;margin-top:5px;align-items:center"><span class="pill pmdm">MDM</span><span class="pill pvcx">VCX</span><span class="pill pcim">CIM</span><span class="pill pred">Action needed</span><button class="btn btng" style="margin-left:auto;padding:3px 9px;font-size:10px" onclick="nav('mdm')">Fix in MDM →</button></div></div>
+        </div>
+        <div style="display:flex;gap:11px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--bdr)">
+          <div style="width:30px;height:30px;border-radius:7px;background:var(--gd);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px">✅</div>
+          <div style="flex:1"><div style="font-size:12px;font-weight:600;margin-bottom:3px">VCX churn scores → 4 CIM campaigns outperforming at +14% open rate</div>
+          <div style="font-size:11px;color:var(--tm);line-height:1.5">Real-time VCX signals feeding CIM batch targeting. 8,200 at-risk customers reached. 62% retention.</div>
+          <div style="display:flex;gap:5px;margin-top:5px;align-items:center"><span class="pill pvcx">VCX</span><span class="pill pcim">CIM</span><span class="pill pgrn">Working well</span><button class="btn btng" style="margin-left:auto;padding:3px 9px;font-size:10px" onclick="nav('cim')">See campaigns →</button></div></div>
+        </div>
+        <div style="display:flex;gap:11px;align-items:flex-start;padding:11px 0">
+          <div style="width:30px;height:30px;border-radius:7px;background:var(--yd);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px">💡</div>
+          <div style="flex:1"><div style="font-size:12px;font-weight:600;margin-bottom:3px">12,400 new customers — VCX has no strategy, CIM has no campaign</div>
+          <div style="font-size:11px;color:var(--tm);line-height:1.5">Acquisition segment onboarded in MDM. Neither VCX nor CIM is reaching them. Est. $180K revenue idle.</div>
+          <div style="display:flex;gap:5px;margin-top:5px;align-items:center"><span class="pill pmdm">MDM</span><span class="pill pvcx">VCX</span><span class="pill pcim">CIM</span><span class="pill pylw">$180K opportunity</span>
+            <div style="display:flex;gap:5px;margin-left:auto">
+              <button class="btn btng" style="padding:3px 9px;font-size:10px" onclick="openStrat()">+ New Strategy</button>
+              <button class="btn btnp" style="padding:3px 9px;font-size:10px" onclick="openCamp()">+ New Campaign</button>
+            </div>
+          </div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="eo">
+    <div style="background:rgba(2,128,144,.06);border:1px solid rgba(2,128,144,.18);border-radius:12px;padding:18px;display:flex;gap:13px;align-items:flex-start">
+      <div style="width:42px;height:42px;border-radius:11px;background:linear-gradient(135deg,var(--td-teal),#03a8be);display:flex;align-items:center;justify-content:center;font-size:19px;box-shadow:0 0 16px rgba(2,128,144,.25);flex-shrink:0">🤖</div>
+      <div><div style="font-size:15px;font-weight:700;margin-bottom:3px">Good morning, Sarah.</div><div style="font-size:12px;color:var(--tm);line-height:1.6">I reviewed CIM, VCX, and MDM overnight. One data issue is hurting your campaigns. A $180K opportunity is sitting idle. Overall performance is strong.</div></div>
+    </div>
+    <div class="g3">
+      <div class="ecard" style="border-color:rgba(192,57,43,.3)" onclick="nav('mdm')"><div class="eico">⚠️</div><div class="etit">Data issue hurting campaigns</div><div class="ebody">Bad MDM data → VCX routes wrong → 6 CIM campaigns paused. Push CVR fell 35%. I can fix in 2 min.</div><div class="ecta">→ Fix the data issue</div></div>
+      <div class="ecard" style="border-color:rgba(10,138,90,.3)" onclick="nav('cim')"><div class="eico">💰</div><div class="etit">$2.1M revenue protected</div><div class="ebody">VCX churn scores powering 4 CIM campaigns. 8,200 at-risk saved. 62% retention — above forecast.</div><div class="ecta">→ See the campaigns</div></div>
+      <div class="ecard" style="border-color:rgba(212,134,10,.3)" onclick="openCamp()"><div class="eico">✨</div><div class="etit">$180K opportunity — 12,400 new customers</div><div class="ebody">Just onboarded in MDM. No VCX strategy, no CIM campaign. Nothing going to them yet.</div><div class="ecta">→ Create a campaign</div></div>
+    </div>
+    <div><div class="slbl">Ask Terry</div><div class="prow"><div class="pchip" onclick="sp('Why is push CVR dropping?')">Why is push CVR dropping?</div><div class="pchip" onclick="sp('What happened overnight?')">What happened overnight?</div><div class="pchip" onclick="sp('Fix the data issue')">Fix the data issue</div><div class="pchip" onclick="openCamp()">Create a campaign</div><div class="pchip" onclick="sp('Show me churn risk by segment')">Show churn risk</div></div></div>
+  </div>
+</div>
+
+<!-- CIM -->
+<div class="screen fin" id="s-cim">
+  <div class="xo">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between">
+      <div class="pgtit"><div style="display:flex;align-items:center;gap:7px;margin-bottom:3px"><span class="pill pcim" style="font-size:10px;padding:3px 8px">CIM</span><h2>Campaign Manager</h2></div><p>Batch &amp; scheduled campaigns · 218 active · <span class="live"><span class="livdot"></span>Synced</span></p></div>
+      <div style="display:flex;gap:7px"><button class="btn btng">↓ Export</button><button class="btn btnp2" onclick="openCamp()">+ New Campaign</button></div>
+    </div>
+    <div class="ttip"><div class="ttic">🤖</div><div class="ttxt"><strong>Terry:</strong> CIM handles <strong>batch &amp; scheduled sends</strong> — separate from VCX. The 4 high-CVR campaigns use <strong>VCX real-time churn scores</strong> as audience signal (that's a live VCX→CIM feed). The 6 paused need the <a onclick="nav('mdm')">MDM fix</a> first. <a onclick="nav('vcx')">See VCX Decisioning →</a></div></div>
+    <div class="card">
+      <div style="display:flex;gap:0;padding:11px 15px;border-bottom:1px solid var(--bdr);background:var(--s2)">
+        <div style="flex:1;padding-right:14px;border-right:1px solid var(--bdr)"><div style="font-size:9px;color:var(--tm);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Running</div><div style="font-size:18px;font-weight:700;color:var(--gn)">212</div></div>
+        <div style="flex:1;padding:0 14px;border-right:1px solid var(--bdr)"><div style="font-size:9px;color:var(--tm);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Paused</div><div style="font-size:18px;font-weight:700;color:var(--yw)">6</div></div>
+        <div style="flex:1;padding:0 14px;border-right:1px solid var(--bdr)"><div style="font-size:9px;color:var(--tm);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Avg CVR</div><div style="font-size:18px;font-weight:700">4.1%</div></div>
+        <div style="flex:1;padding:0 14px;border-right:1px solid var(--bdr)"><div style="font-size:9px;color:var(--tm);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Sends Today</div><div style="font-size:18px;font-weight:700">1.4M</div></div>
+        <div style="flex:1;padding:0 0 0 14px"><div style="font-size:9px;color:var(--tm);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Revenue</div><div style="font-size:18px;font-weight:700;color:var(--td-orange)">$2.1M</div></div>
+      </div>
+      <div style="display:flex;gap:6px;padding:8px 15px;border-bottom:1px solid var(--bdr)">
+        <div style="padding:4px 10px;border-radius:5px;font-size:11px;background:var(--vcx-lt);color:var(--td-orange);cursor:pointer;font-weight:600">All</div>
+        <div style="padding:4px 10px;border-radius:5px;font-size:11px;color:var(--tm);cursor:pointer">Running</div>
+        <div style="padding:4px 10px;border-radius:5px;font-size:11px;color:var(--tm);cursor:pointer">Paused</div>
+        <div style="padding:4px 10px;border-radius:5px;font-size:11px;color:var(--tm);cursor:pointer">Scheduled</div>
+        <div style="margin-left:auto"><button class="btn btng" style="padding:3px 10px;font-size:10px">Filter ▾</button></div>
+      </div>
+      <table class="dtbl">
+        <thead><tr><th>Campaign</th><th>Type</th><th>Channel</th><th>Audience</th><th>CVR</th><th>7d</th><th>Status</th><th>VCX Signal</th></tr></thead>
+        <tbody>
+          <tr><td><strong><a class="rl">Premium Churn Save</a></strong></td><td><span class="bdg bbl">Retention</span></td><td>Email + SMS</td><td>8,200</td><td><strong style="color:var(--gn)">6.7%</strong></td><td><div class="spark"><div class="sb" style="height:50%;background:var(--gn);opacity:.4"></div><div class="sb" style="height:64%;background:var(--gn);opacity:.55"></div><div class="sb" style="height:76%;background:var(--gn);opacity:.65"></div><div class="sb" style="height:86%;background:var(--gn);opacity:.8"></div><div class="sb" style="height:95%;background:var(--gn)"></div></div></td><td><span class="bdg bgn">● Live</span></td><td style="font-size:10px;color:var(--td-teal)">Churn score &gt;0.65</td></tr>
+          <tr><td><strong><a class="rl">Q4 Cross-sell — Savings</a></strong></td><td><span class="bdg bbl">Cross-sell</span></td><td>Email</td><td>31,000</td><td><strong style="color:var(--gn)">4.8%</strong></td><td><div class="spark"><div class="sb" style="height:55%;background:var(--bl);opacity:.4"></div><div class="sb" style="height:60%;background:var(--bl);opacity:.5"></div><div class="sb" style="height:65%;background:var(--bl);opacity:.6"></div><div class="sb" style="height:70%;background:var(--bl);opacity:.7"></div><div class="sb" style="height:74%;background:var(--bl)"></div></div></td><td><span class="bdg bgn">● Live</span></td><td style="font-size:10px;color:var(--tm)">Segment rule</td></tr>
+          <tr><td><strong><a class="rl">Loyalty Tier Upgrade</a></strong></td><td><span class="bdg bbl">Upgrade</span></td><td>Email + Push</td><td>14,500</td><td><strong style="color:var(--gn)">5.2%</strong></td><td><div class="spark"><div class="sb" style="height:58%;background:var(--bl);opacity:.4"></div><div class="sb" style="height:66%;background:var(--bl);opacity:.5"></div><div class="sb" style="height:72%;background:var(--bl);opacity:.6"></div><div class="sb" style="height:70%;background:var(--bl);opacity:.55"></div><div class="sb" style="height:77%;background:var(--bl)"></div></div></td><td><span class="bdg bgn">● Live</span></td><td style="font-size:10px;color:var(--tm)">Segment rule</td></tr>
+          <tr style="opacity:.65"><td><strong><a class="rl" style="color:var(--yw)">Mobile Push — Rate Offer</a></strong></td><td><span class="bdg bbl">Retention</span></td><td>Push</td><td>3,400</td><td><strong style="color:var(--rd)">2.1%</strong></td><td><div class="spark"><div class="sb" style="height:70%;background:var(--rd);opacity:.45"></div><div class="sb" style="height:52%;background:var(--rd);opacity:.5"></div><div class="sb" style="height:37%;background:var(--rd);opacity:.55"></div><div class="sb" style="height:24%;background:var(--rd);opacity:.65"></div><div class="sb" style="height:16%;background:var(--rd)"></div></div></td><td><span class="bdg byw">⏸ Paused</span></td><td style="font-size:10px;color:var(--rd)">MDM bad data · <a class="rl" onclick="nav('mdm')">fix</a></td></tr>
+          <tr style="opacity:.65"><td><strong><a class="rl" style="color:var(--yw)">Re-engagement — Dormant</a></strong></td><td><span class="bdg bbl">Winback</span></td><td>Push</td><td>5,100</td><td><strong style="color:var(--rd)">1.4%</strong></td><td><div class="spark"><div class="sb" style="height:63%;background:var(--rd);opacity:.45"></div><div class="sb" style="height:44%;background:var(--rd);opacity:.5"></div><div class="sb" style="height:29%;background:var(--rd);opacity:.55"></div><div class="sb" style="height:19%;background:var(--rd);opacity:.65"></div><div class="sb" style="height:12%;background:var(--rd)"></div></div></td><td><span class="bdg byw">⏸ Paused</span></td><td style="font-size:10px;color:var(--rd)">MDM bad data · <a class="rl" onclick="nav('mdm')">fix</a></td></tr>
+          <tr><td><strong><a class="rl">Welcome Series — New Acq.</a></strong></td><td><span class="bdg bbl">Onboard</span></td><td>Email</td><td>12,400</td><td><strong style="color:var(--tm)">—</strong></td><td></td><td><span class="bdg" style="background:var(--s2);color:var(--tm)">⏳ Staged</span></td><td style="font-size:10px;color:var(--yw)">Needs VCX strategy · <a class="rl" onclick="openCamp()">+ Create</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="g2">
+      <div class="card"><div class="chd"><div class="ctit">Channel Performance · 7 days</div></div><div class="cbd" style="display:flex;flex-direction:column;gap:10px">
+        <div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px"><span style="color:var(--tm)">📧 Email</span><span style="color:var(--gn)">4.8% CVR</span></div><div class="pb"><div class="pf" style="width:78%;background:var(--gn)"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px"><span style="color:var(--tm)">💬 SMS</span><span style="color:var(--gn)">6.7% CVR</span></div><div class="pb"><div class="pf" style="width:92%;background:var(--gn)"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px"><span style="color:var(--tm)">📱 Push</span><span style="color:var(--rd)">2.1% ↓ MDM issue</span></div><div class="pb"><div class="pf" style="width:28%;background:var(--rd)"></div></div></div>
+      </div></div>
+      <div class="card"><div class="chd"><div class="ctit">Top Performers · 7d revenue</div></div><div class="cbd" style="display:flex;flex-direction:column;gap:8px">
+        <div class="drw"><div class="dlbl">Premium Churn Save</div><div class="dval" style="color:var(--gn)">$1.2M</div></div>
+        <div class="drw"><div class="dlbl">Q4 Cross-sell — Savings</div><div class="dval">$680K</div></div>
+        <div class="drw"><div class="dlbl">Loyalty Tier Upgrade</div><div class="dval">$220K</div></div>
+      </div></div>
+    </div>
+  </div>
+  <div class="eo">
+    <div class="ttip"><div class="ttic">🤖</div><div class="ttxt"><strong>Terry:</strong> CIM sends messages. VCX decides who gets what offer. VCX churn scores flow into your top 4 campaigns automatically — that's why they're performing so well. The 6 paused need MDM fixed. <a onclick="openCamp()">Create a campaign for new customers?</a></div></div>
+    <div><div class="slbl">Ask Terry</div><div class="prow"><div class="pchip" onclick="sp('Why is push CVR so low?')">Why is push CVR low?</div><div class="pchip" onclick="openCamp()">Create new campaign</div><div class="pchip" onclick="sp('What VCX signals power my campaigns?')">What VCX signals are in use?</div><div class="pchip" onclick="nav('vcx')">Go to VCX →</div></div></div>
+  </div>
+</div>
+
+<!-- VCX -->
+<div class="screen fin" id="s-vcx">
+  <div class="xo">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between">
+      <div class="pgtit"><div style="display:flex;align-items:center;gap:7px;margin-bottom:3px"><span class="pill pvcx" style="font-size:10px;padding:3px 8px">VCX</span><h2>Real-Time Decisioning Console</h2></div><p>Per-session offer arbitration · Strategy management · Model health · <span class="live"><span class="livdot"></span>Live &lt;50ms SLA</span></p></div>
+      <div style="display:flex;gap:7px"><button class="btn btng">↓ Export</button><button class="btn btnp" onclick="openStrat()">+ New Strategy</button></div>
+    </div>
+    <div class="ttip"><div class="ttic">🤖</div><div class="ttxt"><strong>Terry:</strong> VCX is a separate real-time engine — it scores every customer <em>session</em> in <strong>&lt;50ms</strong> and outputs ranked offers. CIM reads those scores as audience filters. VCX doesn't send campaigns — that's CIM's job. The Channel Router is partially degraded (3,400 profiles) due to the MDM issue. <a onclick="nav('mdm')">Fix MDM →</a></div></div>
+    <div class="g4">
+      <div class="mc"><div class="macc" style="background:var(--vcx)"></div><div style="margin-bottom:8px"><span class="pill pvcx">VCX</span></div><div class="mval" style="color:var(--vcx)">247K</div><div class="mlbl">Decisions / hour</div><div class="mdlt dup">↑ 3.2%</div></div>
+      <div class="mc"><div class="macc" style="background:var(--gn)"></div><div style="margin-bottom:8px"><span class="pill pgrn">SLA</span></div><div class="mval" style="color:var(--gn)">38ms</div><div class="mlbl">Avg latency</div><div class="mdlt dup">↓ 4ms vs SLA</div></div>
+      <div class="mc"><div class="macc" style="background:var(--yw)"></div><div style="margin-bottom:8px"><span class="pill pylw">ISSUE</span></div><div class="mval" style="color:var(--yw)">3,400</div><div class="mlbl">Mis-routed profiles</div><div class="mdlt ddn">MDM data issue</div></div>
+      <div class="mc"><div class="macc" style="background:var(--td-teal)"></div><div style="margin-bottom:8px"><span class="pill pcim">STRAT</span></div><div class="mval" style="color:var(--td-teal)">7</div><div class="mlbl">Active strategies</div><div class="mdlt dup">All running</div></div>
+    </div>
+    <div class="card"><div class="chd"><div class="ctit">⚡ Live Decision Stream</div><div class="cmeta"><span class="live"><span class="livdot"></span>real-time</span></div></div>
+      <div class="cbd">
+        <div style="display:flex;gap:9px;margin-bottom:7px;padding-bottom:5px;border-bottom:1px solid var(--bdr)"><span style="font-size:9px;color:var(--tm);font-family:'JetBrains Mono',monospace;width:54px">TIME</span><span style="font-size:9px;color:var(--tm);font-family:'JetBrains Mono',monospace;width:70px">CUST</span><span style="font-size:9px;color:var(--tm);font-family:'JetBrains Mono',monospace;flex:1">OFFER</span><span style="font-size:9px;color:var(--tm);font-family:'JetBrains Mono',monospace;width:38px;text-align:right">SCORE</span><span style="font-size:9px;color:var(--tm);font-family:'JetBrains Mono',monospace;width:44px;text-align:right">LAT</span></div>
+        <div id="DS"></div>
+      </div>
+    </div>
+    <!-- Strategy Table -->
+    <div class="card">
+      <div class="chd">
+        <div class="ctit">🧠 Active Strategies</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="cmeta">7 active</span>
+          <button class="btn btnp" style="padding:3px 11px;font-size:10px" onclick="openStrat()">+ New Strategy</button>
+        </div>
+      </div>
+      <table class="dtbl"><thead><tr><th>Strategy</th><th>Segment</th><th>Model</th><th>Offers</th><th>Sessions/hr</th><th>Avg Score</th><th>Status</th></tr></thead><tbody>
+        <tr><td><strong>Premium Churn Defence</strong></td><td>Premium tier</td><td class="code">ChurnPred v3.2</td><td>4</td><td><strong>88K</strong></td><td style="color:var(--gn)">0.74</td><td><span class="bdg bgn">● Live</span></td></tr>
+        <tr><td><strong>New Acquisition Onboard</strong></td><td>New customers</td><td class="code">OnboardProp v1.2</td><td>3</td><td><strong style="color:var(--tm)">—</strong></td><td style="color:var(--tm)">—</td><td><span class="bdg" style="background:var(--yd);color:var(--yw)">⏳ Pending</span></td></tr>
+        <tr><td><strong>Cross-sell — Savings</strong></td><td>Mid-value</td><td class="code">OfferProp v2.8</td><td>6</td><td><strong>62K</strong></td><td style="color:var(--gn)">0.61</td><td><span class="bdg bgn">● Live</span></td></tr>
+        <tr><td><strong>Dormant Re-engagement</strong></td><td>Dormant 60-90d</td><td class="code">ChurnPred v3.2</td><td>2</td><td><strong style="color:var(--rd)">0</strong></td><td style="color:var(--rd)">—</td><td><span class="bdg byw">⏸ Paused</span></td></tr>
+        <tr><td><strong>Loyalty Upgrade Path</strong></td><td>Mid-value loyal</td><td class="code">OfferProp v2.8</td><td>5</td><td><strong>41K</strong></td><td style="color:var(--gn)">0.68</td><td><span class="bdg bgn">● Live</span></td></tr>
+      </tbody></table>
+    </div>
+    <div class="card"><div class="chd"><div class="ctit">🔬 Scoring Model Health</div><div class="cmeta">4 active models</div></div>
+      <table class="dtbl"><thead><tr><th>Model</th><th>Version</th><th>Type</th><th>Accuracy</th><th>Trained</th><th>Feeds</th><th>Status</th></tr></thead><tbody>
+        <tr><td><strong>Churn Predictor</strong></td><td class="code">v3.2</td><td>Classification</td><td><strong style="color:var(--gn)">91.4%</strong></td><td>3 days ago</td><td>4 CIM campaigns</td><td><span class="bdg bgn">● Live</span></td></tr>
+        <tr><td><strong>Offer Propensity</strong></td><td class="code">v2.8</td><td>Ranking</td><td><strong style="color:var(--gn)">87.2%</strong></td><td>1 week ago</td><td>All strategies</td><td><span class="bdg bgn">● Live</span></td></tr>
+        <tr><td><strong>Channel Router</strong></td><td class="code">v1.5</td><td>Classification</td><td><strong style="color:var(--yw)">76.1%</strong></td><td>2 weeks ago</td><td>All sends</td><td><span class="bdg byw">⚠ Degraded</span></td></tr>
+        <tr><td><strong>Onboarding Propensity</strong></td><td class="code">v1.2</td><td>Scoring</td><td><strong style="color:var(--gn)">84.0%</strong></td><td>5 days ago</td><td>Welcome campaigns</td><td><span class="bdg bgn">● Live</span></td></tr>
+      </tbody></table>
+    </div>
+    <div class="ttip"><div class="ttic">🤖</div><div class="ttxt"><strong>Terry:</strong> VCX is scoring <strong>247K decisions/hour</strong> in under 50ms. The churn model feeds your best CIM campaigns automatically. One issue: channel routing is wrong for 3,400 customers due to MDM bad phone data. Fix MDM and VCX self-corrects. <a onclick="nav('mdm')">Fix MDM →</a></div></div>
+  </div>
+  <div class="eo">
+    <div class="ttip"><div class="ttic">🤖</div><div class="ttxt"><strong>Terry:</strong> VCX is your real-time brain — scoring customers in under 50ms. Everything looks good except channel routing for 3,400 customers. That's an MDM problem, not a VCX problem. <a onclick="nav('mdm')">Fix it in MDM →</a></div></div>
+    <div><div class="slbl">Ask Terry</div><div class="prow"><div class="pchip" onclick="sp('Why is channel routing degraded?')">Why is routing degraded?</div><div class="pchip" onclick="nav('mdm')">Fix in MDM →</div><div class="pchip" onclick="openStrat()">Create new strategy</div><div class="pchip" onclick="sp('How does VCX feed CIM?')">How does VCX feed CIM?</div></div></div>
+  </div>
+</div>
+
+<!-- MDM -->
+<div class="screen fin" id="s-mdm">
+  <div class="xo">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between">
+      <div class="pgtit"><div style="display:flex;align-items:center;gap:7px;margin-bottom:3px"><span class="pill pmdm" style="font-size:10px;padding:3px 8px">MDM</span><h2>Data Health &amp; Entity Management</h2></div><p>Master data quality · Entity resolution · Downstream impact · <span class="live"><span class="livdot"></span>Live</span></p></div>
+    </div>
+    <div class="ial red"><div class="iaic">⚠️</div><div style="flex:1"><div class="iatit" style="color:var(--rd)">Active issue: 3,400 profiles with placeholder phone data</div><div class="iabd">Root cause: CRM sync at 2:14am Wed overwrote valid phone numbers with placeholder. VCX channel router reads MDM phone → mis-routing to push. 6 CIM campaigns paused.</div></div></div>
+    <div class="card"><div class="chd"><div class="ctit">🔧 Automated Fix — 4 steps</div><div id="FixSt" class="cmeta">Ready to apply</div></div>
+      <div style="padding:14px 15px">
+        <div style="display:flex;align-items:flex-start;gap:0;margin-bottom:16px">
+          <div class="wscol"><div class="wsnum ac" id="fs1">1</div><div class="wsname">Restore MDM</div></div><div class="wsline"></div>
+          <div class="wscol"><div class="wsnum pe" id="fs2">2</div><div class="wsname">Rescore VCX</div></div><div class="wsline"></div>
+          <div class="wscol"><div class="wsnum pe" id="fs3">3</div><div class="wsname">Restart CIM</div></div><div class="wsline"></div>
+          <div class="wscol"><div class="wsnum pe" id="fs4">4</div><div class="wsname">Add Validation</div></div>
+        </div>
+        <div class="aisug" style="margin-bottom:12px"><div class="aico">🤖</div><div class="aitx"><strong>Terry:</strong> I can restore 3,400 phone fields from the 1:55am MDM snapshot (before the bad sync), rescore profiles in VCX, restart the 6 paused CIM campaigns, and add a validation rule to prevent recurrence. Fully automated — ~2 min.</div></div>
+        <div style="display:flex;gap:8px"><button class="btn btnp" id="FBtn" onclick="doFix()">⚡ Apply Fix Now</button><button class="btn btng">Preview changes</button></div>
+      </div>
+    </div>
+    <div class="g2">
+      <div class="card"><div class="chd"><div class="ctit">Data Quality Score</div></div><div class="cbd">
+        <div class="drw"><div class="dlbl">Entity accuracy</div><div class="dval" style="color:var(--yw)">94.2%</div></div>
+        <div class="drw"><div class="dlbl">Phone field completeness</div><div class="dval" style="color:var(--rd)">87.1%</div></div>
+        <div class="drw"><div class="dlbl">Email deliverability</div><div class="dval" style="color:var(--gn)">98.4%</div></div>
+        <div class="drw"><div class="dlbl">Duplicate rate</div><div class="dval" style="color:var(--gn)">0.3%</div></div>
+      </div></div>
+      <div class="card"><div class="chd"><div class="ctit">Downstream Impact</div></div><div class="cbd">
+        <div class="drw"><div class="dlbl">VCX profiles affected</div><div class="dval" style="color:var(--rd)">3,400</div></div>
+        <div class="drw"><div class="dlbl">CIM campaigns paused</div><div class="dval" style="color:var(--yw)">6</div></div>
+        <div class="drw"><div class="dlbl">Est. daily revenue impact</div><div class="dval" style="color:var(--rd)">-$28K</div></div>
+        <div class="drw"><div class="dlbl">Time to resolve</div><div class="dval" style="color:var(--gn)">~2 min</div></div>
+      </div></div>
+    </div>
+    <div class="g3">
+      <div style="background:var(--s1);border:1px solid var(--bdr);border-radius:10px;padding:14px;text-align:center;box-shadow:0 1px 3px rgba(13,27,42,.06)"><div style="font-size:24px;font-weight:700;color:var(--rd);margin-bottom:4px">3,400</div><div style="font-size:11px;color:var(--tm)">profiles affected</div></div>
+      <div style="background:var(--s1);border:1px solid var(--bdr);border-radius:10px;padding:14px;text-align:center;box-shadow:0 1px 3px rgba(13,27,42,.06)"><div style="font-size:24px;font-weight:700;color:var(--yw);margin-bottom:4px">6</div><div style="font-size:11px;color:var(--tm)">campaigns paused</div></div>
+      <div style="background:var(--s1);border:1px solid var(--bdr);border-radius:10px;padding:14px;text-align:center;box-shadow:0 1px 3px rgba(13,27,42,.06)"><div style="font-size:24px;font-weight:700;color:var(--gn);margin-bottom:4px">~2 min</div><div style="font-size:11px;color:var(--tm)">to fully resolved</div></div>
+    </div>
+  </div>
+  <div class="eo">
+    <div class="ttip"><div class="ttic">🤖</div><div class="ttxt"><strong>Terry:</strong> There's a data problem here that's hurting your campaigns. I found it, traced the cause, and built the fix. One tap and it's done.</div></div>
+    <div style="background:var(--rdd);border:1px solid rgba(192,57,43,.22);border-radius:12px;padding:18px"><div style="font-size:14px;font-weight:700;color:var(--rd);margin-bottom:6px">⚠️ Data issue detected</div><div style="font-size:12px;color:var(--td2);margin-bottom:14px;line-height:1.6">Bad phone data → VCX sends to wrong channel → 6 campaigns paused. Costs ~$28K/day. I can fix it in 2 minutes.</div><button class="btn btngn" id="EFBtn" onclick="doEasyFix()">✓ Fix it now — 2 min</button></div>
+    <div><div class="slbl">Ask Terry</div><div class="prow"><div class="pchip" onclick="sp('How did this happen?')">How did this happen?</div><div class="pchip" onclick="sp('What will the fix change?')">What changes?</div><div class="pchip" onclick="sp('Will this happen again?')">Will this recur?</div></div></div>
+  </div>
+</div>
+
+
+<!-- MARKETPLACE -->
+<div class="screen fin" id="s-mkt">
+  <style>
+    /* Marketplace-specific styles */
+    .mkt-hero{background:linear-gradient(135deg,var(--td-dark) 0%,#1a3a52 60%,rgba(2,128,144,.4) 100%);border-radius:12px;padding:28px 28px 24px;margin-bottom:16px;position:relative;overflow:hidden}
+    .mkt-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(243,112,33,.18),transparent 70%);pointer-events:none}
+    .mkt-hero::after{content:'';position:absolute;bottom:-30px;left:30%;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(2,128,144,.15),transparent 70%);pointer-events:none}
+    .mkt-search{display:flex;gap:10px;margin-top:16px}
+    .mkt-search input{flex:1;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:9px 14px;font-size:13px;color:#fff;font-family:'Sora',sans-serif;outline:none}
+    .mkt-search input::placeholder{color:rgba(255,255,255,.4)}
+    .mkt-search input:focus{border-color:var(--td-teal);background:rgba(255,255,255,.15)}
+    .mkt-search button{background:var(--td-orange);border:none;border-radius:8px;padding:9px 18px;font-size:12px;font-weight:700;color:#fff;cursor:pointer;font-family:'Sora',sans-serif;white-space:nowrap}
+    .mkt-cats{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:4px}
+    .mkt-cat{padding:5px 13px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--bdr);background:var(--s1);color:var(--tm);transition:all .15s}
+    .mkt-cat:hover{border-color:var(--td-teal);color:var(--td-teal)}
+    .mkt-cat.on{background:var(--td-teal);color:#fff;border-color:var(--td-teal)}
+    .mkt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
+    .mkt-card{background:var(--s1);border:1px solid var(--bdr);border-radius:10px;padding:16px;cursor:pointer;transition:all .18s;position:relative;overflow:hidden}
+    .mkt-card:hover{border-color:var(--td-teal);box-shadow:0 4px 16px rgba(2,128,144,.12);transform:translateY(-1px)}
+    .mkt-card.installed{border-color:rgba(10,138,90,.3);background:rgba(10,138,90,.02)}
+    .mkt-card.featured::before{content:'FEATURED';position:absolute;top:10px;right:-24px;background:var(--td-orange);color:#fff;font-size:8px;font-weight:700;padding:2px 30px;transform:rotate(35deg);letter-spacing:.08em}
+    .mkt-ico{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:11px}
+    .mkt-name{font-size:13px;font-weight:700;margin-bottom:3px;color:var(--tx)}
+    .mkt-pub{font-size:10px;color:var(--tm);margin-bottom:8px}
+    .mkt-desc{font-size:11px;color:var(--td2);line-height:1.5;margin-bottom:12px}
+    .mkt-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px}
+    .mkt-tag{padding:2px 7px;border-radius:3px;font-size:9px;font-weight:600;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.05em}
+    .mkt-footer{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--bdr);padding-top:10px;margin-top:auto}
+    .mkt-price{font-size:11px;font-weight:700;color:var(--tx)}
+    .mkt-price span{font-size:9px;font-weight:400;color:var(--tm)}
+    .mkt-ibtn{padding:5px 13px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;border:none;font-family:'Sora',sans-serif;transition:all .15s}
+    .mkt-ibtn.get{background:var(--td-teal);color:#fff}
+    .mkt-ibtn.get:hover{background:#026f7e}
+    .mkt-ibtn.inst{background:var(--gd);color:var(--gn);cursor:default}
+    .mkt-stars{display:flex;align-items:center;gap:3px;font-size:10px;color:var(--yw)}
+    /* Detail panel */
+    .mkt-detail{display:none;position:fixed;top:0;right:0;width:480px;height:100vh;background:var(--s1);border-left:1px solid var(--bdr);z-index:400;overflow-y:auto;box-shadow:-8px 0 32px rgba(13,27,42,.12)}
+    .mkt-detail.on{display:block}
+    .mkt-detail-hd{padding:20px;border-bottom:1px solid var(--bdr);position:sticky;top:0;background:var(--s1);z-index:1}
+    .mkt-detail-body{padding:20px}
+    .mkt-workflow{display:flex;flex-direction:column;gap:0;margin:16px 0}
+    .mkt-wstep{display:flex;gap:12px;align-items:flex-start;position:relative;padding-bottom:16px}
+    .mkt-wstep:not(:last-child)::before{content:'';position:absolute;left:15px;top:32px;width:2px;height:calc(100% - 16px);background:linear-gradient(to bottom,var(--td-teal),rgba(2,128,144,.1))}
+    .mkt-wnum{width:30px;height:30px;border-radius:8px;background:var(--td-teal);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .mkt-wtext{padding-top:5px}
+    .mkt-wlabel{font-size:12px;font-weight:600;margin-bottom:2px}
+    .mkt-wsub{font-size:11px;color:var(--tm);line-height:1.4}
+    .mkt-stat{background:var(--s2);border-radius:8px;padding:12px;text-align:center}
+    .mkt-stat-val{font-size:18px;font-weight:700;color:var(--td-teal)}
+    .mkt-stat-lbl{font-size:10px;color:var(--tm);margin-top:2px}
+    /* Terry rec */
+    .mkt-trec{background:rgba(2,128,144,.06);border:1px solid rgba(2,128,144,.2);border-radius:10px;padding:14px;margin-bottom:16px}
+    .mkt-section-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--tm);margin:20px 0 10px}
+  </style>
+
+  <div class="xo">
+    <!-- Hero -->
+    <div class="mkt-hero">
+      <div style="position:relative;z-index:1">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+          <span style="font-size:22px">🏪</span>
+          <div>
+            <div style="font-size:20px;font-weight:700;color:#fff;line-height:1.1">AI Studio Marketplace</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:2px">Field-built accelerators · ISV solutions · Pre-built agents · All run on Vantage</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:20px;margin-top:14px">
+          <div style="text-align:center"><div style="font-size:18px;font-weight:700;color:var(--td-orange)">47</div><div style="font-size:10px;color:rgba(255,255,255,.45)">Solutions available</div></div>
+          <div style="width:1px;background:rgba(255,255,255,.1)"></div>
+          <div style="text-align:center"><div style="font-size:18px;font-weight:700;color:var(--td-orange)">12</div><div style="font-size:10px;color:rgba(255,255,255,.45)">Field-built</div></div>
+          <div style="width:1px;background:rgba(255,255,255,.1)"></div>
+          <div style="text-align:center"><div style="font-size:18px;font-weight:700;color:var(--td-orange)">6</div><div style="font-size:10px;color:rgba(255,255,255,.45)">Installed</div></div>
+          <div style="width:1px;background:rgba(255,255,255,.1)"></div>
+          <div style="text-align:center"><div style="font-size:18px;font-weight:700;color:var(--td-orange)">4</div><div style="font-size:10px;color:rgba(255,255,255,.45)">ISV partners</div></div>
+        </div>
+        <div class="mkt-search" style="margin-top:16px">
+          <input type="text" id="mktSearch" placeholder="Search accelerators, agents, data connectors…" oninput="filterMkt(this.value)"/>
+          <button onclick="filterMkt('')">Search</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Terry recommendation banner -->
+    <div class="mkt-trec">
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <div style="font-size:18px;flex-shrink:0">🤖</div>
+        <div>
+          <div style="font-size:12px;font-weight:700;margin-bottom:4px">Terry recommends for you</div>
+          <div style="font-size:11px;color:var(--td2);line-height:1.5">Based on your current setup — VCX churn model running, MDM data quality issue, 12,400 new customers without a welcome strategy — <strong>3 marketplace solutions</strong> could immediately help. The EU Banking Compliance Pack and Churn Explainability Agent are used by 4 of your peers.</div>
+          <div class="prow" style="margin-top:8px"><div class="pchip" onclick="filterMktCat('recommended')">Show recommendations</div><div class="pchip" onclick="filterMktCat('banking')">Banking solutions</div><div class="pchip" onclick="filterMktCat('churn')">Churn tools</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category filter -->
+    <div class="mkt-cats" id="MktCats">
+      <div class="mkt-cat on" onclick="setCat(this,'all')">All (47)</div>
+      <div class="mkt-cat" onclick="setCat(this,'installed')">✓ Installed (6)</div>
+      <div class="mkt-cat" onclick="setCat(this,'field')">Field-built (12)</div>
+      <div class="mkt-cat" onclick="setCat(this,'banking')">Banking (14)</div>
+      <div class="mkt-cat" onclick="setCat(this,'churn')">Churn & Retention (8)</div>
+      <div class="mkt-cat" onclick="setCat(this,'data')">Data & MDM (7)</div>
+      <div class="mkt-cat" onclick="setCat(this,'compliance')">Compliance (6)</div>
+      <div class="mkt-cat" onclick="setCat(this,'ai')">AI / ML Models (10)</div>
+    </div>
+
+    <!-- Section: Terry Recommended -->
+    <div class="mkt-section-label" id="mktRecLabel">⭐ Terry Recommended for Sarah</div>
+    <div class="mkt-grid" id="MktRecGrid">
+
+      <!-- Card 1: Churn Explainability -->
+      <div class="mkt-card featured" onclick="showDetail('churn-explain')">
+        <div class="mkt-ico" style="background:rgba(192,57,43,.1)">🔍</div>
+        <div class="mkt-name">Churn Explainability Agent</div>
+        <div class="mkt-pub">Teradata Field · EMEA Banking CoE</div>
+        <div class="mkt-desc">Wraps your VCX churn model with plain-English explanations — why each customer is at risk, what to do, and which CIM campaign to trigger. Connects to active VCX model automatically.</div>
+        <div class="mkt-tags">
+          <span class="mkt-tag" style="background:var(--vcx-lt);color:var(--vcx)">VCX</span>
+          <span class="mkt-tag" style="background:var(--cim-lt);color:var(--cim)">CIM</span>
+          <span class="mkt-tag" style="background:var(--gd);color:var(--gn)">Field-built</span>
+        </div>
+        <div class="mkt-footer">
+          <div><div class="mkt-stars">★★★★★<span style="color:var(--tm);margin-left:4px">(23)</span></div><div class="mkt-price" style="margin-top:2px">Included <span>· Platform tier</span></div></div>
+          <button class="mkt-ibtn get" onclick="event.stopPropagation();installPkg('churn-explain',this)">Install</button>
+        </div>
+      </div>
+
+      <!-- Card 2: EU Banking Compliance -->
+      <div class="mkt-card featured" onclick="showDetail('eu-compliance')">
+        <div class="mkt-ico" style="background:rgba(26,95,171,.1)">⚖️</div>
+        <div class="mkt-name">EU Banking Compliance Pack</div>
+        <div class="mkt-pub">Teradata Field · Nordic Banking Team</div>
+        <div class="mkt-desc">Pre-built decision guardrails for GDPR, MiFID II, and PSD2. Automatically checks every VCX offer against regulatory rules before delivery. Used at Lloyds and Gjensidige.</div>
+        <div class="mkt-tags">
+          <span class="mkt-tag" style="background:var(--vcx-lt);color:var(--vcx)">VCX</span>
+          <span class="mkt-tag" style="background:var(--mdm-lt);color:var(--mdm)">MDM</span>
+          <span class="mkt-tag" style="background:var(--gd);color:var(--gn)">Field-built</span>
+          <span class="mkt-tag" style="background:rgba(212,134,10,.1);color:var(--yw)">Banking</span>
+        </div>
+        <div class="mkt-footer">
+          <div><div class="mkt-stars">★★★★★<span style="color:var(--tm);margin-left:4px">(18)</span></div><div class="mkt-price" style="margin-top:2px">$75K <span>/ year</span></div></div>
+          <button class="mkt-ibtn get" onclick="event.stopPropagation();installPkg('eu-compliance',this)">Install</button>
+        </div>
+      </div>
+
+      <!-- Card 3: Welcome Journey Accelerator -->
+      <div class="mkt-card" onclick="showDetail('welcome-journey')">
+        <div class="mkt-ico" style="background:rgba(2,128,144,.1)">🚀</div>
+        <div class="mkt-name">Welcome Journey Accelerator</div>
+        <div class="mkt-pub">Teradata Field · FS &amp; Retail CoE</div>
+        <div class="mkt-desc">Pre-built 5-step onboarding journey for new customers. VCX scoring + CIM campaign templates + MDM data quality checks — ready to deploy in under 30 minutes. Sarah, you have 12,400 new customers waiting.</div>
+        <div class="mkt-tags">
+          <span class="mkt-tag" style="background:var(--vcx-lt);color:var(--vcx)">VCX</span>
+          <span class="mkt-tag" style="background:var(--cim-lt);color:var(--cim)">CIM</span>
+          <span class="mkt-tag" style="background:var(--mdm-lt);color:var(--mdm)">MDM</span>
+          <span class="mkt-tag" style="background:var(--gd);color:var(--gn)">Field-built</span>
+        </div>
+        <div class="mkt-footer">
+          <div><div class="mkt-stars">★★★★☆<span style="color:var(--tm);margin-left:4px">(31)</span></div><div class="mkt-price" style="margin-top:2px">Included <span>· Platform tier</span></div></div>
+          <button class="mkt-ibtn get" onclick="event.stopPropagation();installPkg('welcome-journey',this)">Install</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section: All Solutions -->
+    <div class="mkt-section-label" id="mktAllLabel">All Solutions</div>
+    <div class="mkt-grid" id="MktAllGrid">
+
+      <!-- Installed: Fraud Pattern v4 -->
+      <div class="mkt-card installed" onclick="showDetail('fraud-pattern')">
+        <div class="mkt-ico" style="background:var(--gd)">🛡</div>
+        <div class="mkt-name">Fraud Pattern v4 — BYOM</div>
+        <div class="mkt-pub">HSBC CoE · shared via Marketplace</div>
+        <div class="mkt-desc">PMML-based fraud scoring model with daily retraining. Scores every transaction in <50ms inside VCX. Battle-tested at HSBC — $100M+ fraud prevented.</div>
+        <div class="mkt-tags">
+          <span class="mkt-tag" style="background:var(--vcx-lt);color:var(--vcx)">VCX</span>
+          <span class="mkt-tag" style="background:rgba(212,134,10,.1);color:var(--yw)">BYOM</span>
+          <span class="mkt-tag" style="background:rgba(212,134,10,.1);color:var(--yw)">Banking</span>
+        </div>
+        <div class="mkt-footer">
+          <div><div class="mkt-stars">★★★★★<span style="color:var(--tm);margin-left:4px">(47)</span></div><div class="mkt-price" style="margin-top:2px">Included</div></div>
+          <button class="mkt-ibtn inst">✓ Installed</button>
+        </div>
+      </div>
+
+      <!-- Installed: MDM Data Quality Rules -->
+      <div class="mkt-card installed" onclick="showDetail('mdm-rules')">
+        <div class="mkt-ico" style="background:var(--mdm-lt)">📐</div>
+        <div class="mkt-name">Banking MDM Rule Pack</div>
+        <div class="mkt-pub">Teradata Field · UK Banking</div>
+        <div class="mkt-desc">150+ pre-built data quality rules for banking MDM: phone validation, address standardisation, duplicate detection, consent flags. Plug directly into MDM steward workflows.</div>
+        <div class="mkt-tags">
+          <span class="mkt-tag" style="background:var(--mdm-lt);color:var(--mdm)">MDM</span>
+          <span class="mkt-tag" style="background:var(--gd);color:var(--gn)">Field-built</span>
+          <span class="mkt-tag" style="background:rgba(212,134,10,.1);color:var(--yw)">Banking</span>
+        </div>
+        <div class="mkt-footer">
+          <div><div class="mkt-stars">★★★★☆<span style="color:var(--tm);margin-left:4px">(29)</span></div><div class="mkt-price" style="margin-top:2px">Included</div></div>
+          <button class="mkt-ibtn inst">✓ Installed</button>
+        </div>
+      </div>
+
+      <!-- Available: Churn Propensity Boost -->
+      <div class="mkt-card" onclick="showDetail('churn-boost')">
+        <div class="mkt-ico" style="background:rgba(243,112,33,.1)">📈</div>
+        <div class="mkt-name">Churn Propensity Booster</div>
+        <div class="mkt-pub">Personetics · ISV Partner</div>
+        <div class="mkt-desc">Augments VCX churn scoring with real-time transaction behavioral signals — spending pattern changes, channel shift, engagement drop. Improves churn model AUC by 12–18%.</div>
+        <div class="mkt-tags">
+          <span class="mkt-tag" style="background:var(--vcx-lt);color:var(--vcx)">VCX</span>
+          <span class="mkt-tag" style="background:rgba(212,134,10,.1);color:var(--yw)">ISV</span>
+          <span class="mkt-tag" style="background:rgba(243,112,33,.1);color:var(--td-orange)">AI / ML</span>
+        </div>
+        <div class="mkt-footer">
+          <div><div class="mkt-stars">★★★★★<span style="color:var(--tm);margin-left:4px">(14)</span></div><div class="mkt-price" style="margin-top:2px">$50K <span>/ year</span></div></div>
+          <button class="mkt-ibtn get" onclick="event.stopPropagation();installPkg('churn-boost',this)">Install</button>
+        </div>
+      </div>
+
+      <!-- Available: Next-Best-Conversation -->
+      <div class="mkt-card" onclick="showDetail('nbc')">
+        <div class="mkt-ico" style="background:rgba(2,128,144,.1)">💬</div>
+        <div class="mkt-name">Next-Best-Conversation Agent</div>
+        <div class="mkt-pub">Teradata Field · Contact Centre CoE</div>
+        <div class="mkt-desc">Surfaces VCX real-time decisioning scores inside your contact centre agent desktop. Tells human agents what to offer, upsell, or escalate during live calls — powered by your existing VCX strategy.</div>
+        <div class="mkt-tags">
+          <span class="mkt-tag" style="background:var(--vcx-lt);color:var(--vcx)">VCX</span>
+          <span class="mkt-tag" style="background:var(--gd);color:var(--gn)">Field-built</span>
+        </div>
+        <div class="mkt-footer">
+          <div><div class="mkt-stars">★★★★☆<span style="color:var(--tm);margin-left:4px">(11)</span></div><div class="mkt-price" style="margin-top:2px">$25K <span>/ year</span></div></div>
+          <button class="mkt-ibtn get" onclick="event.stopPropagation();installPkg('nbc',this)">Install</button>
+        </div>
+      </div>
+
+      <!-- Available: SAP Financial Connector -->
+      <div class="mkt-card" onclick="showDetail('sap-connector')">
+        <div class="mkt-ico" style="background:rgba(26,95,171,.08)">🔗</div>
+        <div class="mkt-name">SAP Financial Data Connector</div>
+        <div class="mkt-pub">Teradata EAS · Platform</div>
+        <div class="mkt-desc">Extracts SAP ERP financial data into Vantage for analytics. Bypasses SAP Analytics Cloud licensing. Supports 8 SAP modules including FI, CO, SD. Boeing-proven at enterprise scale.</div>
+        <div class="mkt-tags">
+          <span class="mkt-tag" style="background:var(--mdm-lt);color:var(--mdm)">EAS</span>
+          <span class="mkt-tag" style="background:rgba(212,134,10,.1);color:var(--yw)">Finance</span>
+        </div>
+        <div class="mkt-footer">
+          <div><div class="mkt-stars">★★★★☆<span style="color:var(--tm);margin-left:4px">(8)</span></div><div class="mkt-price" style="margin-top:2px">$40K <span>/ year</span></div></div>
+          <button class="mkt-ibtn get" onclick="event.stopPropagation();installPkg('sap-connector',this)">Install</button>
+        </div>
+      </div>
+
+      <!-- Available: Profitability Intelligence -->
+      <div class="mkt-card" onclick="showDetail('profitability')">
+        <div class="mkt-ico" style="background:rgba(10,138,90,.1)">💹</div>
+        <div class="mkt-name">Customer Profitability Intelligence</div>
+        <div class="mkt-pub">Teradata TVA · Platform</div>
+        <div class="mkt-desc">Embeds TVA profitability analytics into VCX arbitration — ensures your best offers go to your most profitable customers, not just highest-churn. RBC found $31M in incremental opportunity.</div>
+        <div class="mkt-tags">
+          <span class="mkt-tag" style="background:var(--vcx-lt);color:var(--vcx)">VCX</span>
+          <span class="mkt-tag" style="background:rgba(212,134,10,.1);color:var(--yw)">TVA</span>
+          <span class="mkt-tag" style="background:rgba(212,134,10,.1);color:var(--yw)">Banking</span>
+        </div>
+        <div class="mkt-footer">
+          <div><div class="mkt-stars">★★★★★<span style="color:var(--tm);margin-left:4px">(19)</span></div><div class="mkt-price" style="margin-top:2px">$60K <span>/ year</span></div></div>
+          <button class="mkt-ibtn get" onclick="event.stopPropagation();installPkg('profitability',this)">Install</button>
+        </div>
+      </div>
+
+    </div><!-- /grid -->
+  </div><!-- /xo -->
+
+  <!-- Easy mode footer for marketplace -->
+  <div class="eo">
+    <div class="ttip"><div class="ttic">🤖</div><div class="ttxt"><strong>Terry:</strong> This is your team's app store — solutions built by field teams and partners that extend your VCX, CIM and MDM. Install takes seconds. Start with the <strong>Welcome Journey Accelerator</strong> — you have 12,400 new customers doing nothing right now.</div></div>
+    <div><div class="slbl">Ask Terry</div><div class="prow"><div class="pchip" onclick="sp('What marketplace solutions fit my setup?')">What fits my setup?</div><div class="pchip" onclick="sp('Which solutions are used by banks like mine?')">What do similar banks use?</div><div class="pchip" onclick="showDetail('welcome-journey')">Deploy welcome journey</div><div class="pchip" onclick="sp('How do I submit a solution to the marketplace?')">Submit a solution</div></div></div>
+  </div>
+
+  <!-- DETAIL SIDE PANEL -->
+  <div class="mkt-detail" id="MktDetail">
+    <div class="mkt-detail-hd">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <div style="font-size:10px;color:var(--tm);text-transform:uppercase;letter-spacing:.06em" id="DPub">Teradata Field</div>
+        <button onclick="closeDetail()" style="background:none;border:none;cursor:pointer;color:var(--tm);font-size:16px;padding:2px 6px">✕</button>
+      </div>
+      <div style="font-size:17px;font-weight:700;margin-bottom:6px" id="DName">Solution Name</div>
+      <div style="font-size:12px;color:var(--td2);line-height:1.5;margin-bottom:12px" id="DDesc">Description</div>
+      <div style="display:flex;gap:7px" id="DTags"></div>
+    </div>
+    <div class="mkt-detail-body" id="DBody">
+      <!-- populated by JS -->
+    </div>
+  </div>
+  <div style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(13,27,42,.3);z-index:399;display:none" id="MktOverlay" onclick="closeDetail()"></div>
+
+</div>
+
+</div><!-- /main -->
+
+<!-- TERRY floating widget -->
+<div class="tp" id="TERRY_WIDGET">
+  <div class="terry-panel" id="TERRY_PANEL">
+    <div class="th">
+      <div class="tav">🤖<div class="tdot"></div></div>
+      <div class="ti"><div class="tn">Terry</div><div class="tr">AI Co-pilot · Teradata</div></div>
+      <div class="tbadge tbe" id="TBadge">EXPERT</div>
+      <div class="terry-hbtns">
+        <button class="terry-hbtn" onclick="clearTerry()" title="Clear conversation">🗑</button>
+        <button class="terry-hbtn close-btn" onclick="toggleTerry()" title="Collapse">✕</button>
+      </div>
+    </div>
+    <div class="tmsgs" id="TMSGS">
+      <div class="tmsg"><div class="ta2">🤖</div><div class="tb"><strong>Good morning, Sarah.</strong> I reviewed CIM, VCX, and MDM overnight. One data issue is affecting all three apps — but the fix is ready.</div></div>
+      <div class="tmsg"><div class="ta2">🤖</div><div class="tb"><span class="og">⚠ MDM → VCX → CIM chain:</span> CRM sync at 2:14am corrupted phone fields for 3,400 profiles. VCX reads MDM phone for channel routing → now sending them to push instead of email. 6 CIM campaigns underperforming.<div class="tacts"><button class="tbt p" onclick="nav('mdm')">Fix in MDM →</button><button class="tbt" onclick="atm('Fix has 4 steps: (1) restore phone fields from 1:55am MDM snapshot, (2) rescore 3,400 profiles in VCX, (3) restart 6 CIM campaigns, (4) add MDM validation rule. All automated — ~2 min. Want to apply?')">Explain fix</button></div></div></div>
+      <div class="tmsg"><div class="ta2">🤖</div><div class="tb"><span style="color:var(--gn)">✓ Good news:</span> VCX churn model v3.2 is feeding <strong>4 CIM campaigns</strong> automatically — that's why they're at <strong>6.7% CVR</strong>, above the 4.1% average. That VCX→CIM integration is working well.<div class="tacts"><button class="tbt og" onclick="nav('cim')">See CIM</button><button class="tbt og" onclick="nav('vcx')">See VCX</button></div></div></div>
+    </div>
+    <div class="tinp">
+      <textarea class="tinput" id="TINP" rows="2" placeholder="Ask Terry anything…" onkeydown="tkd(event)"></textarea>
+      <button class="tsend" onclick="ts()">↑</button>
+    </div>
+    <div class="clear-confirm" id="CLEAR_CONFIRM">
+      <p>Clear conversation?</p>
+      <div class="clear-confirm-btns">
+        <button class="ccbtn yes" onclick="confirmClear()">Clear</button>
+        <button class="ccbtn no" onclick="cancelClear()">Cancel</button>
+      </div>
+    </div>
+  </div>
+  <div class="terry-fab" id="TERRY_FAB" onclick="toggleTerry()">
+    🤖
+    <div class="terry-fab-dot"></div>
+    <div class="terry-fab-badge" id="TERRY_BADGE">TERRY</div>
+  </div>
+</div>
+
+</div><!-- /body -->
+
+<!-- CAMPAIGN MODAL -->
+<div class="modal-bg" id="MODAL">
+  <div class="modal" id="MBOX">
+    <div id="MExp">
+      <div class="mhd"><div><div class="mhtit">New Campaign — Expert Mode</div><div class="mhsub">CIM + VCX integrated wizard · Terry assists at each step</div></div><div class="mclose" onclick="closeMod()">✕</div></div>
+      <div class="mbody">
+        <div class="wsteps" id="WSteps"></div>
+        <div class="wp on" id="W1">
+          <div class="aisug"><div class="aico">🤖</div><div class="aitx"><strong>Terry suggests:</strong> 12,400 new acquisition customers in MDM have no strategy or campaign. I've pre-filled a <strong>Welcome Series</strong> — adjust as needed.</div></div>
+          <div class="frow"><div class="fg"><label class="flbl">Campaign Name</label><input class="fi" value="Welcome Series — New Acquisition Q4"/></div><div class="fg"><label class="flbl">Campaign Type</label><select class="fsel"><option selected>Onboarding / Welcome</option><option>Retention</option><option>Cross-sell</option><option>Winback</option></select></div></div>
+          <div class="fg"><label class="flbl">Objective</label><textarea class="fta" rows="2">Drive first product use and account activation among newly acquired customers. Target: 15% activation rate in first 30 days.</textarea></div>
+          <div class="fg"><label class="flbl">Business Goal</label><div class="optg"><div class="optc sel" onclick="selO(this)"><div class="oco">🚀</div><div class="oct">Activation</div><div class="ocb">Drive first product use</div></div><div class="optc" onclick="selO(this)"><div class="oco">❤️</div><div class="oct">Retention</div><div class="ocb">Prevent early churn</div></div><div class="optc" onclick="selO(this)"><div class="oco">💰</div><div class="oct">Revenue</div><div class="ocb">Cross-sell from day 1</div></div></div></div>
+        </div>
+        <div class="wp" id="W2">
+          <div class="aisug"><div class="aico">🤖</div><div class="aitx"><strong>Terry:</strong> Audience pre-built from MDM — 12,400 new acquisition customers. Excluded the 3,400 with the data quality issue. VCX will score each using the Onboarding Propensity model.</div></div>
+          <div class="frow"><div class="fg"><label class="flbl">Audience Source</label><select class="fsel"><option selected>MDM — New Acquisition (this week)</option><option>MDM — All customers</option><option>Custom segment</option></select></div><div class="fg"><label class="flbl">Estimated Size</label><input class="fi" value="12,400 customers" readonly style="color:var(--gn)"/></div></div>
+          <div class="frow"><div class="fg"><label class="flbl">VCX Scoring Model</label><select class="fsel"><option selected>Onboarding Propensity v1.2</option><option>Churn Predictor v3.2</option><option>No scoring (static list)</option></select></div><div class="fg"><label class="flbl">Min. Score Threshold</label><input class="fi" value="0.40"/></div></div>
+          <div class="fg"><label class="flbl">Exclusion Rules</label>
+            <div style="display:flex;flex-direction:column;gap:7px;margin-top:2px">
+              <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--td2);cursor:pointer"><input type="checkbox" checked style="accent-color:var(--td-teal)"/> Exclude customers with active complaint last 30 days</label>
+              <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--td2);cursor:pointer"><input type="checkbox" checked style="accent-color:var(--td-teal)"/> Exclude 3,400 MDM profiles with data quality issues</label>
+              <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--td2);cursor:pointer"><input type="checkbox" style="accent-color:var(--td-teal)"/> Exclude customers already in another welcome campaign</label>
+            </div>
+          </div>
+        </div>
+        <div class="wp" id="W3">
+          <div class="aisug"><div class="aico">🤖</div><div class="aitx"><strong>Terry:</strong> Email is the highest-converting channel for new customers (4.8% CVR). Skip push — routing accuracy is degraded for this segment due to the MDM issue.</div></div>
+          <div class="fg"><label class="flbl">Channels</label><div class="chanrow"><div class="chanc sel" onclick="togC(this)">📧 Email</div><div class="chanc" onclick="togC(this)">📱 Push</div><div class="chanc sel" onclick="togC(this)">📲 In-App</div><div class="chanc" onclick="togC(this)">💬 SMS</div></div></div>
+          <div class="frow"><div class="fg"><label class="flbl">Frequency Cap</label><select class="fsel"><option>1 per day</option><option selected>3 per week</option><option>1 per week</option></select></div><div class="fg"><label class="flbl">Priority</label><select class="fsel"><option>High</option><option selected>Medium</option><option>Low</option></select></div></div>
+          <div class="fg"><label class="flbl">Offer / Content</label><div class="optg"><div class="optc sel" onclick="selO(this)"><div class="oco">🎁</div><div class="oct">Welcome Bonus</div><div class="ocb">First-use incentive</div></div><div class="optc" onclick="selO(this)"><div class="oco">📖</div><div class="oct">Product Education</div><div class="ocb">How-to series</div></div><div class="optc" onclick="selO(this)"><div class="oco">🤝</div><div class="oct">Relationship</div><div class="ocb">Low-pressure engagement</div></div></div></div>
+        </div>
+        <div class="wp" id="W4">
+          <div class="aisug"><div class="aico">🤖</div><div class="aitx"><strong>Terry:</strong> Tonight at 6pm is the optimal send window for new customers. A 20% A/B holdout will let us measure true incremental lift — recommend keeping it on.</div></div>
+          <div class="frow"><div class="fg"><label class="flbl">Start Date &amp; Time</label><input class="fi" type="datetime-local" value="2026-02-19T18:00"/></div><div class="fg"><label class="flbl">Duration</label><select class="fsel"><option>7 days</option><option selected>30 days</option><option>60 days</option><option>Ongoing</option></select></div></div>
+          <div class="frow"><div class="fg"><label class="flbl">A/B Test Holdout</label><select class="fsel"><option>None</option><option selected>20% control group</option><option>50% control group</option></select></div><div class="fg"><label class="flbl">Success Metric</label><select class="fsel"><option selected>Activation rate (first product use)</option><option>Conversion rate</option><option>Revenue per customer</option></select></div></div>
+          <div class="fg"><label class="flbl">Alerts</label>
+            <div style="display:flex;flex-direction:column;gap:7px;margin-top:2px">
+              <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--td2);cursor:pointer"><input type="checkbox" checked style="accent-color:var(--td-teal)"/> Alert me if CVR drops below 2%</label>
+              <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--td2);cursor:pointer"><input type="checkbox" checked style="accent-color:var(--td-teal)"/> Weekly performance summary from Terry</label>
+              <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--td2);cursor:pointer"><input type="checkbox" style="accent-color:var(--td-teal)"/> Terry auto-optimization (pause low performers)</label>
+            </div>
+          </div>
+        </div>
+        <div class="wp" id="W5">
+          <div class="aisug"><div class="aico">🤖</div><div class="aitx"><strong>Terry's summary:</strong> Review and launch when ready. Estimated activation: <strong>14–18%</strong>. Revenue: <strong>$155–200K in 30 days</strong>. Benchmark CVR: 4.8%.</div></div>
+          <div class="rsec"><div class="rstit">📋 Campaign Details</div>
+            <div class="drw"><div class="dlbl">Name</div><div class="dval">Welcome Series — New Acquisition Q4</div></div>
+            <div class="drw"><div class="dlbl">Goal</div><div class="dval">Onboarding · Activation</div></div>
+            <div class="drw"><div class="dlbl">Audience</div><div class="dval">12,400 · MDM New Acquisition</div></div>
+            <div class="drw"><div class="dlbl">Channels</div><div class="dval">Email + In-App</div></div>
+            <div class="drw"><div class="dlbl">Schedule</div><div class="dval">Tonight 6pm · 30 days</div></div>
+          </div>
+          <div class="rsec"><div class="rstit">📈 Terry's Projections</div>
+            <div class="drw"><div class="dlbl">Activation rate</div><div class="dval" style="color:var(--gn)">14 – 18%</div></div>
+            <div class="drw"><div class="dlbl">Customers activated</div><div class="dval" style="color:var(--gn)">1,736 – 2,232</div></div>
+            <div class="drw"><div class="dlbl">Revenue (30 days)</div><div class="dval" style="color:var(--gn)">$155K – $200K</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="mft"><button class="btn btng" id="BBack" onclick="wPrev()" style="display:none">← Back</button><div style="flex:1;font-size:11px;color:var(--tm)" id="StLbl">Step 1 of 5</div><button class="btn btng" onclick="closeMod()">Cancel</button><button class="btn btnp" id="BNext" onclick="wNext()">Next →</button></div>
+    </div>
+    <div id="MEasy" style="display:none">
+      <div class="mhd"><div><div class="mhtit" style="display:flex;align-items:center;gap:8px">🤖 <span>Create Campaign with Terry</span></div><div class="mhsub">Easy mode · 4 questions · Terry handles CIM + VCX setup</div></div><div class="mclose" onclick="closeMod()">✕</div></div>
+      <div class="mbody"><div class="ech" id="ECH"></div><div class="ecinp" id="ECInpWrap" style="display:none"><input class="ecif" id="ECInp" placeholder="Type your answer…" onkeydown="if(event.key==='Enter')ecSend()"/><button class="ecsnd" onclick="ecSend()">Send</button></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- VCX STRATEGY MODAL -->
+<div class="modal-bg" id="STRAT_MODAL">
+  <div class="modal" id="SBOX">
+    <div class="mhd">
+      <div>
+        <div class="mhtit" style="display:flex;align-items:center;gap:8px"><span class="pill pvcx" style="font-size:10px">VCX</span> New Decisioning Strategy</div>
+        <div class="mhsub">Define a real-time offer strategy · Terry pre-fills from MDM segments</div>
+      </div>
+      <div class="mclose" onclick="closeStrat()">✕</div>
+    </div>
+    <div class="mbody" style="display:flex;flex-direction:column;gap:16px">
+      <div class="aisug"><div class="aico">🤖</div><div class="aitx"><strong>Terry:</strong> I see 12,400 new acquisition customers in MDM with no VCX strategy. I've pre-filled a starting point — adjust the segment, model, and offers as needed.</div></div>
+      <div class="frow">
+        <div class="fg"><label class="flbl">Strategy Name</label><input class="fi" value="New Acquisition Onboarding"/></div>
+        <div class="fg"><label class="flbl">Priority</label><select class="fsel"><option>Highest</option><option selected>High</option><option>Medium</option><option>Low</option></select></div>
+      </div>
+      <div class="fg"><label class="flbl">Target Segment</label>
+        <div class="optg">
+          <div class="optc sel" onclick="selO(this)"><div class="oco">✨</div><div class="oct">New Acquisition</div><div class="ocb">12,400 customers · MDM onboarded this week</div></div>
+          <div class="optc" onclick="selO(this)"><div class="oco">⚠️</div><div class="oct">Churn Risk</div><div class="ocb">8,200 customers · score &gt;0.65</div></div>
+          <div class="optc" onclick="selO(this)"><div class="oco">💤</div><div class="oct">Dormant</div><div class="ocb">5,100 customers · 60-90d inactive</div></div>
+        </div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label class="flbl">Scoring Model</label><select class="fsel"><option selected>Onboarding Propensity v1.2</option><option>Churn Predictor v3.2</option><option>Offer Propensity v2.8</option><option>No scoring (rule-based)</option></select></div>
+        <div class="fg"><label class="flbl">Min. Score Threshold</label><input class="fi" value="0.40"/></div>
+      </div>
+      <div class="fg"><label class="flbl">Offer Slots (up to 6 ranked)</label>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px">
+          <div style="display:flex;align-items:center;gap:8px;background:var(--s2);border:1px solid var(--bdr2);border-radius:7px;padding:8px 12px">
+            <span style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--tm);width:18px">#1</span>
+            <span style="flex:1;font-size:12px;color:var(--tx)">Welcome Bonus — First deposit match</span>
+            <span class="bdg bgn">Active</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;background:var(--s2);border:1px solid var(--bdr2);border-radius:7px;padding:8px 12px">
+            <span style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--tm);width:18px">#2</span>
+            <span style="flex:1;font-size:12px;color:var(--tx)">Product Intro — Savings account feature tour</span>
+            <span class="bdg bgn">Active</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;background:var(--s2);border:1px solid var(--bdr2);border-radius:7px;padding:8px 12px">
+            <span style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--tm);width:18px">#3</span>
+            <span style="flex:1;font-size:12px;color:var(--tx)">Loyalty Enrol — Join rewards program</span>
+            <span class="bdg bgn">Active</span>
+          </div>
+          <button class="btn btng" style="align-self:flex-start;font-size:10px;padding:4px 10px">+ Add offer slot</button>
+        </div>
+      </div>
+      <div class="fg"><label class="flbl">Channels this strategy can trigger</label>
+        <div class="chanrow" style="margin-top:4px">
+          <div class="chanc sel" onclick="togC(this)">📲 In-App</div>
+          <div class="chanc sel" onclick="togC(this)">📧 Email (via CIM)</div>
+          <div class="chanc" onclick="togC(this)">📱 Push</div>
+          <div class="chanc" onclick="togC(this)">💬 SMS (via CIM)</div>
+        </div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label class="flbl">Arbitration Rule</label><select class="fsel"><option selected>Highest propensity score wins</option><option>Business value weighted</option><option>Random A/B split</option></select></div>
+        <div class="fg"><label class="flbl">Cooldown (per customer)</label><select class="fsel"><option>1 hour</option><option selected>24 hours</option><option>72 hours</option><option>7 days</option></select></div>
+      </div>
+      <div class="aisug"><div class="aico">🤖</div><div class="aitx"><strong>Terry's estimate:</strong> With Onboarding Propensity v1.2 and these 3 offers, I'd expect <strong>12–16% activation</strong> in the first 30 days. That's roughly <strong>1,488 – 1,984 customers activated</strong>. Want me to also create a matching CIM campaign for the email channel?</div></div>
+    </div>
+    <div class="mft">
+      <button class="btn btng" onclick="closeStrat()">Cancel</button>
+      <div style="flex:1"></div>
+      <button class="btn btng" onclick="atm('Strategy saved as draft. You can activate it from the VCX Strategy table.');closeStrat()">Save Draft</button>
+      <button class="btn btnp" onclick="launchStrat()">⚡ Activate Strategy</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let curMode='expert', wStep=1;
+const wMax=5, wNames=['Objective','Audience','Channels','Schedule','Review & Launch'];
+let ecStep=0, ecAnswers=[];
+let terryOpen=true;
+let unreadCount=0;
+
+const ecFlow=[
+  {q:'Hi Sarah! Let\'s build a campaign — 4 questions and I handle all the CIM + VCX setup. <strong>Who do you want to reach?</strong>',opts:['New customers this week (12,400 in MDM)','At-risk customers (8,200 flagged by VCX churn model)','Dormant customers (5,100)','Let me describe the audience…']},
+  {q:'Got it. <strong>What do you want them to do?</strong>',opts:['Make their first purchase / activate','Learn about the product','Re-engage after being away','Get a special offer']},
+  {q:'Perfect. <strong>Which channel should we use?</strong> Email has best CVR right now — push is degraded from the MDM issue.',opts:['Email only — safest choice right now','Email + in-app (recommended)','Whatever Terry thinks is best','Include SMS too']},
+  {q:'Last one — <strong>when should we start?</strong>',opts:['Tonight at 6pm (optimal, Terry recommends)','Tomorrow morning','This week — Terry pick the time','Schedule for next Monday']},
+];
+const bcMap={dash:[{l:'Overview',s:null}],cim:[{l:'Overview',s:'dash'},{l:'CIM · Campaign Manager',s:null}],vcx:[{l:'Overview',s:'dash'},{l:'VCX · Decisioning Console',s:null}],mdm:[{l:'Overview',s:'dash'},{l:'MDM · Data Health',s:null}],mkt:[{l:'Overview',s:'dash'},{l:'AI Studio Marketplace',s:null}]};
+const siMap={dash:0,cim:1,vcx:2,mdm:3,mkt:4};
+
+function toggleTerry(){
+  terryOpen=!terryOpen;
+  const panel=document.getElementById('TERRY_PANEL');
+  if(terryOpen){panel.classList.add('open');unreadCount=0;document.getElementById('TERRY_BADGE').classList.remove('show');cancelClear();}
+  else{panel.classList.remove('open');cancelClear();}
+}
+function openTerry(){
+  if(!terryOpen){terryOpen=true;document.getElementById('TERRY_PANEL').classList.add('open');unreadCount=0;document.getElementById('TERRY_BADGE').classList.remove('show');}
+}
+function clearTerry(){document.getElementById('CLEAR_CONFIRM').classList.toggle('show');}
+function confirmClear(){
+  document.getElementById('TMSGS').innerHTML='';
+  document.getElementById('CLEAR_CONFIRM').classList.remove('show');
+  const el=document.createElement('div');el.className='tmsg';
+  el.innerHTML='<div class="ta2">🤖</div><div class="tb">Conversation cleared. How can I help?</div>';
+  document.getElementById('TMSGS').appendChild(el);
+}
+function cancelClear(){document.getElementById('CLEAR_CONFIRM').classList.remove('show');}
+document.addEventListener('DOMContentLoaded',()=>{document.getElementById('TERRY_PANEL').classList.add('open');});
+
+function nav(scr){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  document.getElementById('s-'+scr).classList.add('on');
+  const bc=document.getElementById('BC');
+  bc.innerHTML=(bcMap[scr]||[]).map(c=>c.s?`<a class="bcl" onclick="nav('${c.s}')">${c.l}</a><span class="bcs"> › </span>`:`<span class="bcc">${c.l}</span>`).join('');
+  document.querySelectorAll('.si').forEach((s,i)=>s.classList.toggle('on',i===siMap[scr]));
+  const msgs={
+    cim:`Now in <strong>CIM Campaign Manager</strong>. CIM = batch sends. VCX = real-time scoring. They're separate engines. The 4 high-CVR campaigns get VCX churn scores as audience signals automatically. The 6 paused need <a onclick="nav('mdm')">MDM fixed</a>. <a onclick="nav('vcx')">See VCX →</a>`,
+    vcx:`Now in <strong>VCX Real-Time Decisioning</strong>. VCX scores every session in &lt;50ms and outputs ranked offer scores. It doesn't send campaigns (CIM does that). Channel Router is degraded for 3,400 profiles due to MDM bad data. 12,400 new customers have <strong>no strategy yet</strong> — <a onclick="openStrat()">create one →</a>`,
+    mdm:`Now in <strong>MDM Data Health</strong>. MDM corruption → VCX mis-routing → CIM failures. Fix here and both VCX and CIM self-correct automatically. 4-step fix is ready.`,
+    mkt:`Welcome to the <strong>AI Studio Marketplace</strong> — 47 solutions built by Teradata field teams and ISV partners. I'm recommending 3 for your current setup. The <strong>Welcome Journey Accelerator</strong> would put those 12,400 new customers to work immediately.`,
+    dash:`Back at <strong>Overview</strong>. MDM→VCX→CIM alert still active. Push CVR still at 2.1%. Revenue protection strong at $2.1M. 12,400 new customers still unreached.`
+  };
+  if(msgs[scr]) atm(msgs[scr]);
+  document.getElementById('MAIN').scrollTop=0;
+}
+function setMode(m){
+  curMode=m;
+  document.getElementById('APP').className=m==='easy'?'easy':'';
+  document.getElementById('BEasy').className='mbtn easy'+(m==='easy'?' on':'');
+  document.getElementById('BExp').className='mbtn exp'+(m==='expert'?' on':'');
+  const b=document.getElementById('TBadge');
+  b.textContent=m==='easy'?'EASY':'EXPERT';
+  b.className=m==='easy'?'tbadge tby':'tbadge tbe';
+  atm(m==='easy'?'Switched to <strong>Easy mode</strong>. I\'ll summarize everything and handle the details.':'Back in <strong>Expert mode</strong>. Full dashboards visible.');
+  if(document.getElementById('MODAL').classList.contains('open')){
+    document.getElementById('MExp').style.display=m==='easy'?'none':'block';
+    document.getElementById('MEasy').style.display=m==='easy'?'block':'none';
+    if(m==='easy'&&ecStep===0) startEasyChat();
+  }
+}
+function atm(html,isU=false){
+  const m=document.getElementById('TMSGS');
+  const el=document.createElement('div');
+  if(isU){el.className='umsg';el.innerHTML=`<div class="ub">${html}</div>`;}
+  else{el.className='tmsg';el.innerHTML=`<div class="ta2">🤖</div><div class="tb">${html}</div>`;}
+  m.appendChild(el);m.scrollTop=m.scrollHeight;
+  if(!terryOpen&&!isU){
+    unreadCount++;
+    const badge=document.getElementById('TERRY_BADGE');
+    badge.textContent=unreadCount>9?'9+':unreadCount;
+    badge.classList.add('show');
+  }
+}
+function ts(){const i=document.getElementById('TINP');const t=i.value.trim();if(!t)return;i.value='';sp(t);}
+function tkd(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();ts();}}
+function sp(t){openTerry();atm(t,true);setTimeout(()=>atm(tr(t.toLowerCase())),700);}
+const responses={
+  'why is push cvr dropping':'Push CVR dropped because <strong>MDM has bad phone data for 3,400 profiles</strong>. VCX reads MDM phone fields for channel routing — with placeholder values, it defaults to push. Push CVR: 2.1% vs email 4.8%. <a onclick="nav(\'mdm\')">Fix in MDM →</a>',
+  'what happened overnight':'CRM sync at <strong>2:14am</strong> overwrote valid phone numbers with a placeholder value for 3,400 profiles. MDM didn\'t catch it (no validation rule). By morning, VCX was mis-routing those customers to push. 6 CIM campaigns paused.',
+  'fix the data issue':'I\'ve prepared a <strong>4-step automated fix</strong>: restore phone fields from the 1:55am MDM snapshot, rescore 3,400 VCX profiles, restart 6 CIM campaigns, add a validation rule. ~2 min total. <a onclick="nav(\'mdm\')">Apply it in MDM →</a>',
+  'show me churn risk by segment':'Top churn risk: <strong>Premium tier</strong> (8,200 customers, 12.4% churn prob) — active retention campaign running. <strong>Dormant 60-90d</strong> (5,100 customers, 34% churn prob) — paused due to MDM issue. Fix MDM to restart.',
+  'show churn risk':'Top churn risk: <strong>Premium tier</strong> (8,200 customers, 12.4% churn prob) — active retention campaign running. <strong>Dormant 60-90d</strong> (5,100 customers, 34% churn prob) — paused due to MDM issue.',
+  'why is push cvr low':'Same MDM issue — 3,400 profiles have bad phone data, so VCX routes them to push incorrectly. Fix MDM and push CVR recovers. <a onclick="nav(\'mdm\')">Fix MDM →</a>',
+  'what vcx signals are in use':'<strong>Active VCX→CIM feeds:</strong> Churn Predictor v3.2 → Premium Churn Save (8,200 customers, 6.7% CVR). All other campaigns use static MDM segments. Recommendation: add VCX propensity scoring to the Welcome Series campaign.',
+  'how does vcx feed cim':'VCX scores every customer session in real-time (&lt;50ms). CIM uses those scores as <strong>dynamic audience filters</strong> — e.g. "send to anyone whose VCX churn score just crossed 0.65". That\'s live for 4 campaigns. The other 214 use static MDM lists.',
+  'why is channel routing degraded':'MDM has placeholder phone values for 3,400 profiles. VCX\'s Channel Router reads MDM phone fields to decide push vs. email. With bad data, it defaults to push. Fix: <a onclick="nav(\'mdm\')">restore MDM phone fields →</a>',
+  'how did this happen':'CRM sync at 2:14am Wed wrote a placeholder into phone fields for 3,400 records during a batch migration. MDM had no validation rule blocking placeholder values. Adding one as part of the fix.',
+  'what will the fix change':'4 changes: (1) Restore 3,400 phone fields from 1:55am snapshot. (2) VCX rescores those profiles — they\'ll route to email. (3) 6 paused CIM campaigns restart. (4) New MDM validation rule blocks placeholders going forward.',
+  'will this recur':'Not if we add the validation rule (step 4 of the fix). It blocks any phone value matching placeholder patterns before they write to MDM.',
+  'create new strategy':'Ready to set that up. <a onclick="openStrat()">Open the New Strategy wizard →</a> I\'ve pre-filled it for the 12,400 new acquisition customers who currently have no VCX decisioning coverage.'
+};
+function tr(t){
+  for(const k in responses){const kw=k.split(' ');if(kw.every(w=>t.includes(w.substring(0,4))))return responses[k];}
+  return `Checking CIM, VCX, and MDM for anything related to "<strong>${t}</strong>"…<br><br>Most relevant context: MDM data issue is the active root cause. VCX→CIM churn feed is performing well. New customer segment (12,400) is unreached and has no VCX strategy.`;
+}
+
+// Live decision stream
+const offers=['Premium Savings Account','Mortgage Rate Lock','Credit Card Cashback Upgrade','Loyalty Tier Promotion','Insurance Bundle Offer','Investment Portfolio Review','Personal Loan Pre-approval'];
+const custs=['C-28471','C-19234','C-83920','C-44102','C-67831','C-12039','C-99201','C-55678'];
+const ds=document.getElementById('DS');
+if(ds){setInterval(()=>{
+  const now=new Date();
+  const t=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+  const score=(Math.random()*.4+.55).toFixed(2);
+  const lat=Math.floor(Math.random()*30+28)+'ms';
+  const col=parseFloat(score)>.75?'var(--gn)':parseFloat(score)>.60?'var(--yw)':'var(--td2)';
+  const row=document.createElement('div');row.className='dsrow';
+  row.innerHTML=`<span style="color:var(--tm);width:54px">${t}</span><span style="color:var(--td-teal);width:70px">${custs[Math.floor(Math.random()*custs.length)]}</span><span style="color:var(--tx);flex:1">${offers[Math.floor(Math.random()*offers.length)]}</span><span style="color:${col};width:38px;text-align:right;font-weight:600">${score}</span><span style="color:var(--gn);width:44px;text-align:right">${lat}</span>`;
+  ds.insertBefore(row,ds.firstChild);
+  while(ds.children.length>6)ds.removeChild(ds.lastChild);
+},2200);}
+
+// MDM fix expert
+function doFix(){
+  const btn=document.getElementById('FBtn');btn.disabled=true;btn.textContent='⏳ Applying…';btn.style.opacity='.6';
+  const steps=['fs1','fs2','fs3','fs4'];
+  const msgs=['✓ 3,400 phone fields restored from Wed 1:55am MDM snapshot.','✓ VCX rescored 3,400 profiles — now correctly routed to email.','✓ 6 CIM campaigns reactivated with corrected channels.','✓ Validation rule deployed — placeholder phone values blocked in future.'];
+  let i=0;document.getElementById('FixSt').textContent='Applying…';
+  const iv=setInterval(()=>{
+    if(i<steps.length){const el=document.getElementById(steps[i]);el.className='wsnum dn';el.textContent='✓';if(i+1<steps.length){document.getElementById(steps[i+1]).className='wsnum ac';}atm(msgs[i]);i++;}
+    else{clearInterval(iv);btn.textContent='✓ Applied';btn.className='btn btng';document.getElementById('FixSt').textContent='✓ All steps complete';atm('<span style="color:var(--gn)">✓ All done.</span> MDM accuracy: <strong>96.1%</strong>. VCX channel routing corrected. 6 CIM campaigns running again. Validation rule active.');}
+  },1300);
+}
+function doEasyFix(){
+  const btn=document.getElementById('EFBtn');btn.disabled=true;btn.textContent='⏳ Working…';
+  atm('Applying the fix now…');
+  setTimeout(()=>{btn.textContent='✓ All done!';btn.style.background='var(--gn)';atm('<span style="color:var(--gn)">Done!</span> ✓ 3,400 phone numbers restored. ✓ VCX updated to email routing. ✓ 6 campaigns restarted. ✓ Validation rule deployed.<br><br>Push CVR should recover to ~3.4% this afternoon. <a onclick="nav(\'cim\')" style="color:var(--td-teal);cursor:pointer">See campaigns →</a>');},2200);
+}
+
+// ── DEMO STORY ENGINE ──────────────────────────────────────────────────────
+const STORY = [
+  {
+    id: 'beat1',
+    label: '1 of 5',
+    title: 'One platform, three apps',
+    icon: '🔗',
+    color: '#028090',
+    screen: 'dash',
+    mode: 'expert',
+    spotlight: null,
+    body: 'Sarah used to log into CIM, VCX, and MDM separately — three tools, three logins, three mental models. This is the unified view. CIM, VCX, and MDM surfaced in one place. The top alert shows something no individual app would ever tell her: a data problem in MDM is quietly degrading six CIM campaigns.',
+    cta: 'Next: VCX feeds CIM →',
+    hint: 'Point to the 4 KPI cards: VCX, CIM, MDM, Revenue — one screen.',
+  },
+  {
+    id: 'beat2',
+    label: '2 of 5',
+    title: 'VCX feeds CIM in real time',
+    icon: '⚡',
+    color: '#F37021',
+    screen: 'cim',
+    mode: 'expert',
+    spotlight: null,
+    body: 'Look at the VCX Signal column. The top campaigns — Premium Churn Save, Loyalty Upgrade — are not using static segment rules. They\'re reading live VCX churn scores. Every session, VCX scores the customer in under 50ms. CIM picks it up as an audience filter. That\'s the integration. Not a nightly batch sync — a live feed.',
+    cta: 'Next: MDM finds the bad data →',
+    hint: 'Scroll to "VCX Signal" column in the campaign table — point to "Churn score >0.65".',
+  },
+  {
+    id: 'beat3',
+    label: '3 of 5',
+    title: 'MDM catches broken profiles',
+    icon: '🗄',
+    color: '#1A5FAB',
+    screen: 'mdm',
+    mode: 'expert',
+    spotlight: null,
+    body: 'MDM found 3,400 profiles where phone numbers got corrupted to a placeholder during a 2am CRM sync. Most tools would never surface this. Here, MDM flags it — and more importantly, it shows the downstream impact: VCX is routing those customers to push instead of email, which is why six CIM campaigns are paused.',
+    cta: 'Next: Terry as sidekick →',
+    hint: 'Point to the red alert banner at the top, then the fix steps panel.',
+  },
+  {
+    id: 'beat4',
+    label: '4 of 5',
+    title: 'Terry: your sidekick, not a chatbot',
+    icon: '🤖',
+    color: '#028090',
+    screen: 'dash',
+    mode: 'easy',
+    spotlight: 'terry',
+    body: 'Terry isn\'t a chatbot bolted on the side. Terry synthesizes across CIM, VCX, and MDM to surface what matters — and it explains the "why". Try asking: "Why is push CVR dropping?" or "What happened overnight?" Terry traces the root cause across three systems in one answer. That used to take Sarah two hours of investigation.',
+    cta: 'Next: Easy vs Expert mode →',
+    hint: 'Open Terry panel. Ask "Why is push CVR dropping?" — show the cross-system explanation.',
+  },
+  {
+    id: 'beat5',
+    label: '5 of 5',
+    title: 'Easy mode vs Expert mode',
+    icon: '✦',
+    color: '#F37021',
+    screen: 'dash',
+    mode: null,
+    spotlight: 'modetoggle',
+    body: 'Same platform, two lenses. Expert mode gives the full control surface — every signal, every table, every config. Easy mode strips it down to three cards and a conversation. Toggle it now. Notice how the dashboard changes — not the data, just the interface. This matters: Sarah\'s junior analyst can work alongside her data scientist. No separate product needed.',
+    cta: 'End demo ✓',
+    hint: 'Toggle Easy ↔ Expert live. Show the dashboard transforms. Easy mode: 3 cards. Expert: full KPIs + tables.',
+  }
+];
+
+let storyStep = -1; // -1 = off
+
+function storyNext() {
+  storyStep++;
+  if (storyStep >= STORY.length) { storyOff(); return; }
+  renderStory();
+}
+function storyPrev() {
+  if (storyStep <= 0) return;
+  storyStep--;
+  renderStory();
+}
+function storyOff() {
+  storyStep = -1;
+  document.getElementById('STORY_RAIL').style.display = 'none';
+  document.getElementById('STORY_SPOTLIGHT').style.display = 'none';
+  document.getElementById('STORY_HINT').style.display = 'none';
+}
+function storyOn() {
+  storyStep = 0;
+  document.getElementById('STORY_RAIL').style.display = 'flex';
+  renderStory();
+}
+function renderStory() {
+  const s = STORY[storyStep];
+  // Navigate
+  if (s.screen) nav(s.screen);
+  if (s.mode) setMode(s.mode);
+  // Update rail
+  const rail = document.getElementById('STORY_RAIL');
+  rail.style.setProperty('--sc', s.color);
+  document.getElementById('SR_LABEL').textContent = s.label;
+  document.getElementById('SR_ICON').textContent = s.icon;
+  document.getElementById('SR_TITLE').textContent = s.title;
+  document.getElementById('SR_BODY').textContent = s.body;
+  document.getElementById('SR_CTA').textContent = s.cta;
+  document.getElementById('SR_HINT').textContent = '💡 ' + s.hint;
+  document.getElementById('SR_PREV').style.opacity = storyStep === 0 ? '0.3' : '1';
+  // Progress dots
+  const dots = document.getElementById('SR_DOTS');
+  dots.innerHTML = STORY.map((_, i) => `<div style="width:${i===storyStep?'18':'6'}px;height:6px;border-radius:3px;background:${i<=storyStep?s.color:'rgba(255,255,255,.2)'};transition:all .3s"></div>`).join('');
+  // Spotlight for Terry
+  const sp = document.getElementById('STORY_SPOTLIGHT');
+  const hint = document.getElementById('STORY_HINT');
+  if (s.spotlight === 'terry') {
+    sp.style.display = 'block';
+    setTimeout(()=>{ const fab = document.querySelector('.terry-fab'); if(fab){ const r = fab.getBoundingClientRect(); sp.style.top=(r.top-12)+'px'; sp.style.left=(r.left-12)+'px'; sp.style.width=(r.width+24)+'px'; sp.style.height=(r.height+24)+'px'; }},200);
+  } else if (s.spotlight === 'modetoggle') {
+    sp.style.display = 'block';
+    setTimeout(()=>{ const tog = document.querySelector('.mtog'); if(tog){ const r = tog.getBoundingClientRect(); sp.style.top=(r.top-8)+'px'; sp.style.left=(r.left-8)+'px'; sp.style.width=(r.width+16)+'px'; sp.style.height=(r.height+16)+'px'; }},200);
+  } else {
+    sp.style.display = 'none';
+  }
+  hint.style.display = 'block';
+}
+
+// Campaign modal
+function openCamp(){
+  document.getElementById('MODAL').classList.add('open');
+  const isEasy=curMode==='easy';
+  document.getElementById('MExp').style.display=isEasy?'none':'block';
+  document.getElementById('MEasy').style.display=isEasy?'block':'none';
+  if(!isEasy){wStep=1;renderWiz();}else{ecStep=0;ecAnswers=[];startEasyChat();}
+}
+function closeMod(){document.getElementById('MODAL').classList.remove('open');}
+document.getElementById('MODAL').addEventListener('click',e=>{if(e.target===document.getElementById('MODAL'))closeMod();});
+
+// Strategy modal
+function openStrat(){
+  document.getElementById('STRAT_MODAL').classList.add('open');
+  atm('Opening <strong>New Strategy wizard</strong>. I\'ve pre-filled it for the 12,400 new acquisition customers. Adjust as needed.');
+}
+function closeStrat(){document.getElementById('STRAT_MODAL').classList.remove('open');}
+document.getElementById('STRAT_MODAL').addEventListener('click',e=>{if(e.target===document.getElementById('STRAT_MODAL'))closeStrat();});
+function launchStrat(){
+  closeStrat();
+  atm('<span style="color:var(--gn)">⚡ Strategy activated!</span> <strong>New Acquisition Onboarding</strong> is now live in VCX. Scoring 12,400 customers using Onboarding Propensity v1.2. 3 offer slots active. Want me to create a matching CIM email campaign? <a onclick="openCamp()" style="color:var(--td-teal)">+ Create Campaign →</a>');
+  nav('vcx');
+}
+
+/* ---- MARKETPLACE JS ---- */
+const mktDetails = {
+  'churn-explain': {
+    name: 'Churn Explainability Agent',
+    pub: 'Teradata Field · EMEA Banking CoE',
+    desc: 'Wraps your active VCX churn model with plain-English explanations per customer — why they\'re at risk, confidence score, and the exact CIM campaign to trigger. No setup required if Churn Predictor v3.2 is running.',
+    tags: [['VCX','vcx'],['CIM','cim'],['Field-built','gn']],
+    stats: [{v:'< 2 min',l:'Setup time'},{v:'23',l:'Reviews'},{v:'★★★★★',l:'Rating'}],
+    workflow: [
+      {l:'Connect to VCX', s:'Agent reads your active churn model (Churn Predictor v3.2 detected). No configuration needed.'},
+      {l:'Enrich each score', s:'For every churn score > 0.5, agent generates a plain-English reason: "high balance volatility + digital disengagement last 30 days."'},
+      {l:'Surface in CIM', s:'When CIM creates a retention campaign, the explanation surfaces in the audience view. Sarah sees WHY each customer is at risk.'},
+      {l:'Recommend next action', s:'Agent suggests which of your existing CIM campaigns to trigger per customer — personalised, not one-size-fits-all.'},
+    ],
+    price: 'Included · Platform tier',
+    cta: 'Install Free'
+  },
+  'eu-compliance': {
+    name: 'EU Banking Compliance Pack',
+    pub: 'Teradata Field · Nordic Banking Team',
+    desc: 'Pre-built decision guardrails for GDPR Article 22 (automated decisions), MiFID II suitability checks, and PSD2 consent validation. Every VCX offer is checked against the ruleset before delivery. Deployed at Lloyds and Gjensidige.',
+    tags: [['VCX','vcx'],['MDM','mdm'],['Banking','yw'],['Compliance','yw']],
+    stats: [{v:'90 days',l:'vs 4–6mo custom'},{v:'18',l:'Reviews'},{v:'Lloyds · Gjensidige',l:'Reference customers'}],
+    workflow: [
+      {l:'Import ruleset', s:'150+ pre-configured regulatory rules load into VCX arbitration layer. No custom coding required.'},
+      {l:'MDM consent sync', s:'MDM Connected Identity feeds real-time consent flags. GDPR opt-outs block offers within milliseconds.'},
+      {l:'Pre-delivery check', s:'Every VCX offer passes through MiFID II suitability check before delivery. Non-compliant offers are suppressed automatically.'},
+      {l:'Audit trail', s:'Every blocked offer is logged with the rule that triggered it. Full regulatory audit trail exported monthly.'},
+    ],
+    price: '$75,000 / year',
+    cta: 'Request Trial'
+  },
+  'welcome-journey': {
+    name: 'Welcome Journey Accelerator',
+    pub: 'Teradata Field · FS & Retail CoE',
+    desc: 'A complete 5-step onboarding journey for new customers — pre-built VCX strategy, 5 CIM campaign templates, MDM quality checks, and A/B holdout. Install to deploy in under 30 minutes. Sarah, you have 12,400 new customers not receiving anything right now.',
+    tags: [['VCX','vcx'],['CIM','cim'],['MDM','mdm'],['Field-built','gn']],
+    stats: [{v:'30 min',l:'Deploy time'},{v:'$155–200K',l:'Est. 30-day revenue'},{v:'14–18%',l:'Expected activation'}],
+    workflow: [
+      {l:'MDM segment', s:'Reads your new acquisition segment (12,400 this week) directly from MDM. Excludes the 3,400 with data quality issues automatically.'},
+      {l:'VCX strategy', s:'Loads "Onboarding Propensity" model and 3 offer variants. VCX scores each new customer in real time — high scorers get the activation offer, low scorers get education content.'},
+      {l:'CIM campaigns', s:'5 pre-built campaign templates load into CIM: Day 0 welcome, Day 3 activation nudge, Day 7 product education, Day 14 check-in, Day 30 retention signal.'},
+      {l:'A/B holdout', s:'20% holdout group configured automatically. Terry monitors CVR daily and alerts Sarah if performance drifts.'},
+      {l:'Live in CIM', s:'First sends tonight at 6pm. Sarah approves the launch — Terry handles all CIM + VCX wiring.'},
+    ],
+    price: 'Included · Platform tier',
+    cta: 'Install & Deploy'
+  },
+  'fraud-pattern': {
+    name: 'Fraud Pattern v4 — BYOM',
+    pub: 'HSBC CoE · shared via Marketplace',
+    desc: 'Battle-tested PMML fraud scoring model with daily retraining on your transaction data. Scores every card transaction in <50ms inside VCX. $100M+ in fraud prevented at HSBC. Currently installed and running on your account.',
+    tags: [['VCX','vcx'],['BYOM','yw'],['Banking','yw']],
+    stats: [{v:'$100M+',l:'Fraud prevented (HSBC)'},{v:'96.7%',l:'Model accuracy'},{v:'< 50ms',l:'Scoring latency'}],
+    workflow: [
+      {l:'BYOM integration', s:'PMML model runs natively inside VCX — no data leaves Vantage. Daily retraining on your own transaction history.'},
+      {l:'Pattern detection', s:'Detects test-charge sequences, velocity anomalies, merchant category mismatches, and geographic outliers in real time.'},
+      {l:'Risk tiers', s:'Outputs 3 tiers: block, step-up authentication, or allow. Thresholds configurable per product line.'},
+      {l:'VCX arbitration', s:'Fraud score feeds VCX offer arbitration — high-risk sessions are automatically excluded from marketing offers.'},
+    ],
+    price: 'Included · Already installed',
+    cta: '✓ Installed'
+  },
+};
+
+function showDetail(id) {
+  const d = mktDetails[id];
+  if (!d) return;
+  document.getElementById('DName').textContent = d.name;
+  document.getElementById('DPub').textContent = d.pub;
+  document.getElementById('DDesc').textContent = d.desc;
+  const tagsEl = document.getElementById('DTags');
+  const colorMap = {vcx:'vcx-lt,vcx',cim:'cim-lt,cim',mdm:'mdm-lt,mdm',gn:'gd,gn',yw:'yd,yw',bl:'bld,bl'};
+  tagsEl.innerHTML = d.tags.map(([label,c])=>{
+    const [bg,fg] = (colorMap[c]||'s2,tm').split(',');
+    return `<span class="mkt-tag" style="background:var(--${bg});color:var(--${fg})">${label}</span>`;
+  }).join('');
+  const body = document.getElementById('DBody');
+  const statsHtml = d.stats ? `<div style="display:grid;grid-template-columns:repeat(${d.stats.length},1fr);gap:8px;margin-bottom:20px">${d.stats.map(s=>`<div class="mkt-stat"><div class="mkt-stat-val" style="font-size:${s.v.length>6?'13px':'18px'}">${s.v}</div><div class="mkt-stat-lbl">${s.l}</div></div>`).join('')}</div>` : '';
+  const workflowHtml = d.workflow ? `<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--tm);margin-bottom:12px">How it works — Sarah's workflow</div><div class="mkt-workflow">${d.workflow.map((s,i)=>`<div class="mkt-wstep"><div class="mkt-wnum">${i+1}</div><div class="mkt-wtext"><div class="mkt-wlabel">${s.l}</div><div class="mkt-wsub">${s.s}</div></div></div>`).join('')}</div>` : '';
+  const isFree = d.price.includes('Included') || d.price.includes('installed');
+  body.innerHTML = `
+    ${statsHtml}
+    ${workflowHtml}
+    <div style="border-top:1px solid var(--bdr);padding-top:16px;margin-top:8px;display:flex;align-items:center;justify-content:space-between">
+      <div><div style="font-size:14px;font-weight:700">${d.price}</div><div style="font-size:10px;color:var(--tm);margin-top:2px">Runs natively on Vantage</div></div>
+      ${d.cta==='✓ Installed'?`<button class="mkt-ibtn inst" style="font-size:12px;padding:8px 18px">✓ Installed</button>`:
+        `<button class="mkt-ibtn get" style="font-size:12px;padding:8px 18px" onclick="installPkg('${id}',this)">${d.cta}</button>`}
+    </div>
+  `;
+  document.getElementById('MktDetail').classList.add('on');
+  document.getElementById('MktOverlay').style.display = 'block';
+  atm(`Viewing <strong>${d.name}</strong>. ${d.desc.split('.')[0]}. Want me to walk you through the workflow or install it?`);
+}
+
+function closeDetail() {
+  document.getElementById('MktDetail').classList.remove('on');
+  document.getElementById('MktOverlay').style.display = 'none';
+}
+
+function installPkg(id, btn) {
+  const names = {
+    'churn-explain':'Churn Explainability Agent',
+    'eu-compliance':'EU Banking Compliance Pack',
+    'welcome-journey':'Welcome Journey Accelerator',
+    'churn-boost':'Churn Propensity Booster',
+    'nbc':'Next-Best-Conversation Agent',
+    'sap-connector':'SAP Financial Data Connector',
+    'profitability':'Customer Profitability Intelligence',
+  };
+  const name = names[id] || id;
+  if(btn) { btn.textContent = '⏳ Installing…'; btn.disabled = true; btn.className = 'mkt-ibtn inst'; }
+  setTimeout(()=>{
+    if(btn) { btn.textContent = '✓ Installed'; }
+    atm(`<span style="color:var(--gn)">✓ Installed:</span> <strong>${name}</strong> is now active on your account. It\'s connected to your VCX, CIM, and MDM automatically. ${id==='welcome-journey'?'Ready to deploy the 5-step welcome journey for your 12,400 new customers? <a onclick="openCamp()" style="color:var(--td-teal);cursor:pointer">Create campaign →</a>':''}`);
+    closeDetail();
+  }, 1200);
+}
+
+function setCat(el, cat) {
+  document.querySelectorAll('.mkt-cat').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  filterMktCat(cat);
+}
+
+function filterMktCat(cat) {
+  const recLabel = document.getElementById('mktRecLabel');
+  const recGrid = document.getElementById('MktRecGrid');
+  const allLabel = document.getElementById('mktAllLabel');
+  const allGrid = document.getElementById('MktAllGrid');
+  if(cat==='installed') {
+    recLabel.style.display='none'; recGrid.style.display='none';
+    allLabel.textContent='✓ Installed Solutions';
+    allGrid.querySelectorAll('.mkt-card').forEach(c=>{
+      c.style.display=c.classList.contains('installed')?'':'none';
+    });
+  } else if(cat==='field') {
+    recLabel.style.display=''; recGrid.style.display='';
+    allLabel.textContent='Field-built Solutions';
+    allGrid.querySelectorAll('.mkt-card').forEach(c=>{
+      const tags=c.innerHTML; c.style.display=tags.includes('Field-built')?'':'none';
+    });
+  } else if(cat==='banking') {
+    recLabel.style.display='none'; recGrid.style.display='none';
+    allLabel.textContent='Banking Solutions';
+    allGrid.querySelectorAll('.mkt-card').forEach(c=>{
+      const tags=c.innerHTML; c.style.display=(tags.includes('Banking')||tags.includes('Fraud')||tags.includes('Compliance'))?'':'none';
+    });
+  } else if(cat==='churn') {
+    recLabel.textContent='⭐ Churn & Retention Solutions';
+    recGrid.style.display=''; allGrid.style.display='none';
+    allLabel.style.display='none';
+  } else if(cat==='recommended') {
+    recLabel.style.display=''; recGrid.style.display='';
+    recLabel.textContent='⭐ Terry Recommended for Sarah';
+    allLabel.style.display='none'; allGrid.style.display='none';
+  } else {
+    // all
+    recLabel.style.display=''; recGrid.style.display='';
+    recLabel.textContent='⭐ Terry Recommended for Sarah';
+    allLabel.style.display=''; allGrid.style.display='';
+    allLabel.textContent='All Solutions';
+    allGrid.querySelectorAll('.mkt-card').forEach(c=>c.style.display='');
+  }
+}
+
+function filterMkt(q) {
+  if(!q) return filterMktCat('all');
+  q = q.toLowerCase();
+  document.querySelectorAll('.mkt-card').forEach(c=>{
+    c.style.display = c.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+  const ind=document.getElementById('WSteps');
+  ind.innerHTML=wNames.map((n,i)=>{const s=i+1,cls=s<wStep?'dn':s===wStep?'ac':'pe';return `<div class="wscol"><div class="wsnum ${cls}">${s<wStep?'✓':s}</div><div class="wsname">${n}</div></div>${i<wNames.length-1?`<div class="wsline${s<wStep?' dn':''}"></div>`:''}`}).join('');
+  document.querySelectorAll('.wp').forEach((p,i)=>p.classList.toggle('on',i+1===wStep));
+  document.getElementById('BBack').style.display=wStep>1?'inline-flex':'none';
+  document.getElementById('BNext').textContent=wStep===wMax?'🚀 Launch Campaign':'Next →';
+  document.getElementById('StLbl').textContent=`Step ${wStep} of ${wMax} · ${wNames[wStep-1]}`;
+}
+function wNext(){if(wStep<wMax){wStep++;renderWiz();}else{closeMod();atm('<span style="color:var(--gn)">🚀 Campaign launched!</span> <strong>Welcome Series — New Acquisition Q4</strong> is live. First sends tonight at 6pm to 12,400 customers via email + in-app. 20% A/B holdout active. <a onclick="nav(\'cim\')" style="color:var(--td-teal);cursor:pointer">See it in CIM →</a>');}}
+function wPrev(){if(wStep>1){wStep--;renderWiz();}}
+function selO(el){el.closest('.optg').querySelectorAll('.optc').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');}
+function togC(el){el.classList.toggle('sel');}
+function startEasyChat(){const ch=document.getElementById('ECH');ch.innerHTML='';ecStep=0;ecAnswers=[];addEcTerry(ecFlow[0].q,ecFlow[0].opts);}
+function addEcTerry(html,opts){
+  const ch=document.getElementById('ECH');
+  const el=document.createElement('div');el.className='ect';
+  el.innerHTML=`<div class="ecav">🤖</div><div class="ecbb">${html}${opts?`<div class="ecopts">${opts.map(o=>`<div class="ecopt" onclick="ecPick(this,'${o.replace(/'/g,"\\'")}','${o.replace(/'/g,"\\'")}')">${o}</div>`).join('')}</div>`:''}</div>`;
+  ch.appendChild(el);ch.scrollTop=ch.scrollHeight;
+}
+function ecPick(el,val,label){
+  el.classList.add('sel');el.closest('.ecopts').querySelectorAll('.ecopt').forEach(o=>{o.style.pointerEvents='none';});ecAnswers.push(label);
+  setTimeout(()=>{
+    const ch=document.getElementById('ECH');
+    const ub=document.createElement('div');ub.className='ecu';ub.innerHTML=`<div class="ecub">${label}</div>`;ch.appendChild(ub);ch.scrollTop=ch.scrollHeight;ecStep++;
+    if(ecStep<ecFlow.length){setTimeout(()=>{addEcTerry(ecFlow[ecStep].q,ecFlow[ecStep].opts);},500);}
+    else{setTimeout(()=>{addEcTerry(`All set! Here\'s what I\'ve built:<br><br>📋 <strong>Welcome Series — New Acquisition</strong><br>👥 12,400 customers · Email + In-App<br>🧠 VCX Onboarding Propensity model<br>📅 Tonight 6pm · 30 days · 20% A/B holdout<br><br><span style="color:var(--td-teal)">Estimated: 14–18% activation · $155–200K revenue</span><br><br>Launch it?`,['✓ Yes — launch it!','Show me expert details first','Make a change first']);},500);}
+  },300);
+}
+function ecSend(){const i=document.getElementById('ECInp');const t=i.value.trim();if(!t)return;i.value='';ecPick({classList:{add:()=>{},contains:()=>false},closest:()=>({querySelectorAll:()=>[]}),style:{}},t,t);}
+const _orig=window.ecPick;
+window.ecPick=function(el,val,label){
+  if(label==='✓ Yes — launch it!'){el.classList.add('sel');closeMod();atm('<span style="color:var(--gn)">🚀 Done!</span> <strong>Welcome Series — New Acquisition</strong> is live. First sends tonight at 6pm to 12,400 customers. <a onclick="nav(\'cim\')" style="color:var(--td-teal);cursor:pointer">See it in CIM →</a>');return;}
+  if(label==='Show me expert details first'){closeMod();setMode('expert');openCamp();return;}
+  _orig(el,val,label);
+};
+</script>
+
+<!-- DEMO STORY RAIL -->
+<div id="STORY_SPOTLIGHT" style="display:none;position:fixed;z-index:450;border:3px solid var(--td-orange);border-radius:14px;pointer-events:none;box-shadow:0 0 0 4000px rgba(13,27,42,.45);transition:all .3s ease"></div>
+
+<div id="STORY_HINT" style="display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:600;background:rgba(13,27,42,.92);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:8px 16px;font-size:11.5px;color:rgba(255,255,255,.8);font-family:'Sora',sans-serif;pointer-events:none;max-width:520px;text-align:center;line-height:1.5;backdrop-filter:blur(6px)"></div>
+
+<div id="STORY_RAIL" style="display:none;position:fixed;top:64px;right:20px;width:300px;z-index:500;flex-direction:column;gap:0;font-family:'Sora',sans-serif;--sc:#028090">
+  <div style="background:#0D1B2A;border:1px solid rgba(255,255,255,.12);border-radius:14px;overflow:hidden;box-shadow:0 16px 48px rgba(13,27,42,.35)">
+    <!-- Header -->
+    <div style="padding:11px 14px 10px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:8px">
+      <div style="background:var(--sc);border-radius:7px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;transition:background .3s" id="SR_ICON">🔗</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:10px;color:rgba(255,255,255,.4);font-family:'JetBrains Mono',monospace;letter-spacing:.08em;text-transform:uppercase" id="SR_LABEL">1 of 5</div>
+        <div style="font-size:13px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" id="SR_TITLE">One platform</div>
+      </div>
+      <button onclick="storyOff()" style="width:24px;height:24px;border-radius:5px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);cursor:pointer;color:rgba(255,255,255,.45);font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0">✕</button>
+    </div>
+    <!-- Body -->
+    <div style="padding:13px 14px 12px">
+      <div id="SR_BODY" style="font-size:11.5px;color:rgba(255,255,255,.72);line-height:1.65;margin-bottom:13px"></div>
+      <!-- Progress dots -->
+      <div id="SR_DOTS" style="display:flex;gap:5px;align-items:center;margin-bottom:13px"></div>
+      <!-- Actions -->
+      <div style="display:flex;gap:7px;align-items:center">
+        <button id="SR_PREV" onclick="storyPrev()" style="width:32px;height:32px;border-radius:7px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);cursor:pointer;color:rgba(255,255,255,.6);font-size:14px;flex-shrink:0">←</button>
+        <button id="SR_CTA" onclick="storyNext()" style="flex:1;padding:8px 13px;background:var(--sc);border:none;border-radius:7px;color:#fff;font-size:11.5px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;text-align:left;transition:background .3s"></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
